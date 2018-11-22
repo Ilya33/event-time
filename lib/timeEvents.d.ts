@@ -1,7 +1,8 @@
 interface _repeatObject {
     fromTimestamp: number;
     afterTimestamp?: number;
-    repeatInterval: number;
+    repeatInterval?: number;
+    repeatEvery?: any;
 }
 export declare class TimeEvents {
     private tEData;

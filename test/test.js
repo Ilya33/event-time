@@ -86,4 +86,39 @@ describe('TimeEvent', function() {
             })
         );
     });
+
+
+
+    /*it('fromTimestamp, repeatEvery: months = 0 default, next(16)', function() {
+        var timeEvent      = new TimeEvents();
+        var timestamp      = 1542738585000;
+    });*/
+
+
+    /*it('fromTimestamp, repeatEvery: months default, next(16)', function() {
+        var timeEvent      = new TimeEvents();
+        var timestamp      = 1542738585000; // Nov 20
+        var elementsCount  = 16;
+        var i;
+
+        for (i=1; i<=12; i++) {
+            timeEvent._setRepeat({
+                fromTimestamp: timestamp,
+                repeatEvery: {
+                    months: 2
+                }
+            });
+        }
+
+        var r = timeEvent.next(elementsCount);
+
+        timestamp += Math.floor((afterTimestamp - timestamp) / interval) * interval;
+
+        expect(r).to.be.an('array').that.eql(
+            Array(elementsCount).fill(0).map(function() {
+                timestamp += interval;
+                return timestamp;
+            })
+        );
+    });*/
 });

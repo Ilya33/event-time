@@ -1,12 +1,20 @@
 interface _repeatObject {
     fromTimestamp: number;
     afterTimestamp?: number;
-    repeatInterval: number;
+    repeatInterval?: number;
+    repeatEvery?: any;
 }
 
 
 interface TimeEventsData {
-    repeats: _repeatObject[];
+    repeats: {
+        _hasRepeatInterval: boolean;
+        _hasAfterTimestamp: boolean;
+
+        fromTimestamp: number;
+        afterTimestamp: number;
+        repeatInterval: number;
+    }[];
 }
 
 
@@ -21,7 +29,43 @@ export class TimeEvents {
 
 
     _setRepeat(rObj: _repeatObject) {
-        this.tEData.repeats = [rObj];
+        const _hasRepeatInterval: boolean = rObj.hasOwnProperty('repeatInterval') ?true :false;
+        const _hasAfterTimestamp: boolean = rObj.hasOwnProperty('afterTimestamp') ?true :false;
+
+        let afterTimestamp: number;
+        let repeatInterval: number;
+
+
+        if (_hasAfterTimestamp) {
+            if (undefined === rObj.afterTimestamp)
+                throw new Error('The property `afterTimestamp` MUST be a number');
+
+            afterTimestamp = rObj.afterTimestamp;
+        }
+        else {
+            afterTimestamp = 0;
+        }
+
+
+        if (_hasRepeatInterval) {
+            if (undefined === rObj.repeatInterval)
+                throw new Error('The property `repeatInterval` MUST be a number');
+
+            repeatInterval = rObj.repeatInterval;
+        }
+        else {
+            repeatInterval = 0;
+        }
+
+
+        this.tEData.repeats[0] = {
+            _hasRepeatInterval,
+            _hasAfterTimestamp,
+
+            fromTimestamp: rObj.fromTimestamp,
+            repeatInterval,
+            afterTimestamp
+        };
     }
 
 
@@ -35,20 +79,16 @@ export class TimeEvents {
         const interval: number = this.tEData.repeats[0].repeatInterval;
         let i: number;
 
-        if (this.tEData.repeats[0].hasOwnProperty('afterTimestamp')) {
-            const _afterTimestamp: number | undefined = this.tEData.repeats[0].afterTimestamp;
-            let afterTimestamp: number;
 
-            if (undefined === _afterTimestamp) {
-                throw new Error('The property `afterTimestamp` MUST be a number');
-            }
-            else {
-                // generate only new events
-                afterTimestamp = _afterTimestamp > timestamp ?_afterTimestamp :timestamp;
+        if (true === this.tEData.repeats[0]._hasAfterTimestamp) {
+            // generate only new events
+            const afterTimestamp: number = this.tEData.repeats[0].afterTimestamp > timestamp
+                ?this.tEData.repeats[0].afterTimestamp
+                :timestamp;
 
-                timestamp += Math.floor((afterTimestamp - timestamp) / interval) * interval;
-            }
+            timestamp += Math.floor((afterTimestamp - timestamp) / interval) * interval;
         }
+
 
         for (i=0; i<n; i++) {
             timestamp += interval;

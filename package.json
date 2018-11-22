@@ -1,5 +1,5 @@
 {
-  "name": "clock-tower-manager",
+  "name": "time-events",
   "version": "0.0.1",
   "description": "",
   "main": "lib/timeEvents.js",
