@@ -1,99 +1,53 @@
-interface _repeatObject {
+interface TimeEventObject {
     fromTimestamp: number;
-    afterTimestamp?: number;
-    repeatInterval?: number;
-    repeatEvery?: any;
 }
 
 
 interface TimeEventsData {
-    repeats: {
-        _hasRepeatInterval: boolean;
-        _hasAfterTimestamp: boolean;
+//        _hasRepeatInterval: boolean;
+//        _hasAfterTimestamp: boolean;
 
-        fromTimestamp: number;
-        afterTimestamp: number;
-        repeatInterval: number;
-    }[];
-}
+        timestamp: number;
+//        afterTimestamp: number;
+//        repeatInterval: number;
+};
 
 
 
 export class TimeEvents {
-    private tEData: TimeEventsData = {
-        repeats: []
-    };
+    private tEData: TimeEventsData[] = [];
 
     constructor() {}
 
 
 
-    _setRepeat(rObj: _repeatObject) {
-        const _hasRepeatInterval: boolean = rObj.hasOwnProperty('repeatInterval') ?true :false;
-        const _hasAfterTimestamp: boolean = rObj.hasOwnProperty('afterTimestamp') ?true :false;
-
-        let afterTimestamp: number;
-        let repeatInterval: number;
-
-
-        if (_hasAfterTimestamp) {
-            if (undefined === rObj.afterTimestamp)
-                throw new Error('The property `afterTimestamp` MUST be a number');
-
-            afterTimestamp = rObj.afterTimestamp;
-        }
-        else {
-            afterTimestamp = 0;
-        }
-
-
-        if (_hasRepeatInterval) {
-            if (undefined === rObj.repeatInterval)
-                throw new Error('The property `repeatInterval` MUST be a number');
-
-            repeatInterval = rObj.repeatInterval;
-        }
-        else {
-            repeatInterval = 0;
-        }
-
-
-        this.tEData.repeats[0] = {
-            _hasRepeatInterval,
-            _hasAfterTimestamp,
-
-            fromTimestamp: rObj.fromTimestamp,
-            repeatInterval,
-            afterTimestamp
-        };
+    addTimeEvent(tEObj: TimeEventObject) {
+        this.tEData.push({
+            timestamp: tEObj.fromTimestamp
+        });
     }
 
 
 
-    next(n: number = 1): number[] {
-        if (0 === this.tEData.repeats.length)
-            return [];
+    next(next: number = 1): number[] {
+        const currentTimestamp: number = new Date().getTime();
+        const tEData: TimeEventsData[] = this.tEData;
+        let nextTSs: number[] = [];
+        let tEDIndex: number;
+        let tEDLength: number = tEData.length;
 
-        let nextTSs = [];
-        let timestamp: number = this.tEData.repeats[0].fromTimestamp;
-        const interval: number = this.tEData.repeats[0].repeatInterval;
-        let i: number;
+        for (tEDIndex=0; tEDIndex<tEDLength; tEDIndex++) {
+            const timeEvent: TimeEventsData = tEData[tEDIndex];
 
-
-        if (true === this.tEData.repeats[0]._hasAfterTimestamp) {
-            // generate only new events
-            const afterTimestamp: number = this.tEData.repeats[0].afterTimestamp > timestamp
-                ?this.tEData.repeats[0].afterTimestamp
-                :timestamp;
-
-            timestamp += Math.floor((afterTimestamp - timestamp) / interval) * interval;
+            if (timeEvent.timestamp > currentTimestamp) {
+                nextTSs.push(timeEvent.timestamp);
+            }
         }
 
+        nextTSs.sort((a, b) => a > b ?1 :-1);
 
-        for (i=0; i<n; i++) {
-            timestamp += interval;
-            nextTSs[i] = timestamp;
-        }
+        if (nextTSs.length > next)
+            nextTSs.length = next;
 
         return nextTSs;
     }
