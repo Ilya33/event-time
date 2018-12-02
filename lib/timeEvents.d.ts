@@ -1,5 +1,6 @@
 interface TimeEventObject {
     fromTimestamp: number;
+    repeatInterval?: number;
 }
 export declare class TimeEvents {
     private tEData;
