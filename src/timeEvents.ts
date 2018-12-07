@@ -9,10 +9,8 @@ interface TimeEventObject {
 
 interface TimeEventsData {
         _hasRepeatInterval: boolean;
-//        _hasAfterTimestamp: boolean;
 
         timestamp: number;
-//        afterTimestamp: number;
         repeatInterval: number;
 };
 
@@ -34,7 +32,7 @@ export class TimeEvents {
         ) {
             repeatInterval = tEObj.repeatInterval;
             if (repeatInterval < 0)
-                throw new Error('repeatInterval MUST >= 0'); // TODO
+                throw new Error('The `repeatInterval` MUST be >= 0');
 
             _hasRepeatInterval = true;
         }
@@ -90,9 +88,10 @@ export class TimeEvents {
             }
         }
 
-        // TODO uniq
-        nextTSs.sort((a, b) => a > b ?1 :-1);
+        // remove duplicates
+        nextTSs = [...new Set(nextTSs)]; // TODO http://javascript-benchmark.info
 
+        nextTSs.sort((a, b) => a > b ?1 :-1);
         if (nextTSs.length > next)
             nextTSs.length = next;
 

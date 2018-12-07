@@ -170,7 +170,7 @@ describe('TimeEvents', () => {
         const r: number[] = timeEvents.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql(
-            (<any>Array(elementsCount)).fill(elementsCount).map(() => {
+            (<any>Array(elementsCount)).fill(0).map(() => {
                 let _timestamp: number = timestamp;
                 timestamp += interval;
                 return _timestamp;
@@ -194,12 +194,46 @@ describe('TimeEvents', () => {
 
         timestamp += interval * 3;
         expect(r).to.be.an('array').that.eql(
-            (<any>Array(elementsCount)).fill(elementsCount).map(() => {
+            (<any>Array(elementsCount)).fill(0).map(() => {
                 let _timestamp: number = timestamp;
                 timestamp += interval;
                 return _timestamp;
             })
         );
+    });
+
+
+    it('fromTimestamp, repeatInterval, next(16), unique', () => {
+        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        const interval: number = HOUR;
+        const timeEvents: TimeEvents = new TimeEvents();
+        const elementsCount: number = 16;
+        let testTimestamps: number[] = [];
+
+        timeEvents.addTimeEvent({
+            fromTimestamp: timestamp,
+            repeatInterval: interval
+        });
+
+        timestamp -= interval - interval;
+        const anotherTimestamp = timestamp;
+
+        testTimestamps = (<any>Array(elementsCount)).fill(0).map(() => {
+            let _timestamp: number = timestamp;
+            timestamp += interval;
+            return _timestamp;
+        });
+
+        timestamp += interval + interval;
+
+        timeEvents.addTimeEvent({
+            fromTimestamp: anotherTimestamp,
+            repeatInterval: interval
+        });
+
+        const r: number[] = timeEvents.next(elementsCount);
+
+        expect(r).to.be.an('array').that.eql(testTimestamps);
     });
 
 
@@ -224,7 +258,7 @@ describe('TimeEvents', () => {
             timestamp += interval;
         }
 
-        for (i=0; i<16; i++) {
+        for (i=0; i<4; i++) {
             timeEvents.addTimeEvent({
                 fromTimestamp: timestamp,
                 repeatInterval: interval
@@ -239,9 +273,10 @@ describe('TimeEvents', () => {
 
             testTimestamps = [...testTimestamps, ..._array];
 
-            timestamp += Math.floor(interval/4);
+            timestamp += 8;
         }
 
+        //TODO testTimestamps = [...new Set(testTimestamps)];
         testTimestamps.sort((a, b) => a > b ?1 :-1);
         testTimestamps.length = elementsCount;
 
@@ -249,75 +284,4 @@ describe('TimeEvents', () => {
 
         expect(r).to.be.an('array').that.eql(testTimestamps);
     });
-
-
-// TODO unique
-
-
-
-/*
-    it('fromTimestamp, repeatInterval, afterTimestamp, next(16)', function() {
-        var timeEvent      = new TimeEvents();
-        var timestamp      = 1542738585000;
-        var interval       = 3600000;
-        var afterTimestamp = (new Date()).getTime();
-        var elementsCount  = 16;
-
-        if (afterTimestamp < timestamp)
-            afterTimestamp = timestamp + interval;
-
-        timeEvent._setRepeat({
-                fromTimestamp: timestamp,
-                repeatInterval: interval,
-                afterTimestamp: afterTimestamp
-        });
-        var r = timeEvent.next(elementsCount);
-
-        timestamp += Math.floor((afterTimestamp - timestamp) / interval) * interval;
-
-        expect(r).to.be.an('array').that.eql(
-            Array(elementsCount).fill(0).map(function() {
-                timestamp += interval;
-                return timestamp;
-            })
-        );
-    });*/
-
-
-
-    /*it('fromTimestamp, repeatEvery: months = 0 default, next(16)', function() {
-        var timeEvent      = new TimeEvents();
-        var timestamp      = 1542738585000;
-    });*/
-
-
-/*    it('fromTimestamp, repeatEvery: months default, next(16)', function() {
-        var timestamp      = 1542738585000; // Nov 20
-        var elementsCount  = 16;
-        var resultArray = [];
-        var timeEvent;
-        var i;
-
-        for (i=1; i<=12; i++) {
-            timeEvent = new TimeEvents();
-
-            timeEvent._setRepeat({
-                fromTimestamp: timestamp,
-                repeatEvery: {
-                    months: i
-                }
-            });
-
-            resultArray[i] = timeEvent.next(elementsCount);
-        }
-
-        expect(resultArray).to.be.an('array').that.eql(
-            Array(12).fill(0).map(function() {
-                Array(elementsCount).fill(0).map(function() {
-                    timestamp += 10;
-                    return timestamp;
-                })
-            })
-        );
-    });*/
 });
