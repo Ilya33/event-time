@@ -25,8 +25,8 @@ timeEvents.addTimeEvent({
 // get 8 timestamp after new Date().getTime()
 const results0 = timeEvents.next(8);
 
-// get 8 timestamp after 1960000000000
-const results1 = timeEvents.nextAfter(8, 1960000000000);
+// get 5 timestamps after 1960000000000
+const results1 = timeEvents.nextAfter(5, 1960000000000);
 ```
 
 
