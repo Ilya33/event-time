@@ -1,5 +1,5 @@
-// callbacks-helper-tiny - Copyright (C) 2018 Ilya Pavlov
-// callbacks-helper-tiny is licensed under the MIT License
+// time-events - Copyright (C) 2018 Ilya Pavlov
+// time-events is licensed under the MIT License
 
 interface TimeEventObject {
     fromTimestamp: number;
