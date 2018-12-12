@@ -4,6 +4,17 @@ var chai_1 = require("chai");
 var timeEvents_1 = require("../lib/timeEvents");
 describe('TimeEvents', function () {
     var HOUR = 3600000;
+    var uniq = function (a) {
+        var obj = Object.create(null);
+        var i;
+        var l = a.length;
+        for (i = 0; i < l; i++)
+            obj[a[i]] = a[i];
+        // ES-2017 Object.values
+        return Object.keys(obj).map(function (k) {
+            return obj[k];
+        });
+    };
     it('empty TimeEvent, next()', function () {
         var timeEvents = new timeEvents_1.TimeEvents();
         var r = timeEvents.next();
@@ -15,7 +26,7 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.is.empty;
     });
     it('fromTimestamp, next()', function () {
-        var timestamp = new Date().getTime() + 16 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
         var testTimestamp = timestamp;
         var timeEvents = new timeEvents_1.TimeEvents();
         var i;
@@ -29,7 +40,7 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.eql([testTimestamp]);
     });
     it('fromTimestamp, next(16), add 7', function () {
-        var timestamp = new Date().getTime() + 16 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var testTimestamps = [];
         var i;
@@ -44,7 +55,7 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, next(16), add 19', function () {
-        var timestamp = new Date().getTime() + 16 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
         var testTimestamps = [];
@@ -80,7 +91,7 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp (single), repeatInterval = 0, next(16)', function () {
-        var timestamp = new Date().getTime() + 16 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
         var interval = 0;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
@@ -106,7 +117,7 @@ describe('TimeEvents', function () {
         chai_1.expect(hasError).eql(true);
     });
     it('fromTimestamp (single), repeatInterval, next(16)', function () {
-        var timestamp = new Date().getTime() + 16 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
         var interval = HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
@@ -139,7 +150,7 @@ describe('TimeEvents', function () {
         }));
     });
     it('fromTimestamp, repeatInterval, next(16), unique', function () {
-        var timestamp = new Date().getTime() + 16 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
         var interval = HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
@@ -164,7 +175,7 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, repeatInterval, next(16)', function () {
-        var timestamp = new Date().getTime() + 16 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
         var interval = HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
@@ -192,15 +203,53 @@ describe('TimeEvents', function () {
                 return __timestamp;
             });
             testTimestamps = testTimestamps.concat(_array);
-            timestamp += 8;
+            timestamp += 10000;
         };
         for (i = 0; i < 4; i++) {
             _loop_1();
         }
-        //TODO testTimestamps = [...new Set(testTimestamps)];
+        testTimestamps = uniq(testTimestamps);
         testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
         testTimestamps.length = elementsCount;
         var r = timeEvents.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatInterval, nextAfter(16)', function () {
+        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
+        var interval = 2 * HOUR;
+        var timeEvents = new timeEvents_1.TimeEvents();
+        var elementsCount = 16;
+        var startTimestamp = timestamp + HOUR;
+        var addTimeEventsCount = 2;
+        var testTimestamps = [];
+        var i;
+        timeEvents.addTimeEvent({
+            fromTimestamp: 123456
+        });
+        var _loop_2 = function () {
+            timeEvents.addTimeEvent({
+                fromTimestamp: timestamp,
+                repeatInterval: interval
+            });
+            var _timestamp = timestamp;
+            var _array = Array(elementsCount).fill(0).map(function () {
+                var __timestamp = _timestamp;
+                _timestamp += interval;
+                return __timestamp;
+            });
+            testTimestamps = testTimestamps.concat(_array);
+            timestamp += 10000;
+        };
+        for (i = 0; i < addTimeEventsCount; i++) {
+            _loop_2();
+        }
+        var results = timeEvents.nextAfter(elementsCount, startTimestamp);
+        testTimestamps = uniq(testTimestamps);
+        testTimestamps = testTimestamps.filter(function (el) {
+            return el > startTimestamp;
+        });
+        testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
+        testTimestamps.length = elementsCount;
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
     });
 });

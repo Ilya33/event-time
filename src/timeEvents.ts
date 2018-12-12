@@ -16,6 +16,22 @@ interface TimeEventsData {
 
 
 
+const uniq = (a: any[]): any[] => {
+    let obj = Object.create(null);
+    let i: number;
+    let l: number = a.length;
+
+    for (i=0; i<l; i++)
+        obj[ a[i] ] = a[i];
+
+    // ES-2017 Object.values
+    return Object.keys(obj).map(k => {
+        return obj[k];
+    });
+};
+
+
+
 export class TimeEvents {
     private tEData: TimeEventsData[] = [];
 
@@ -23,7 +39,52 @@ export class TimeEvents {
 
 
 
-    addTimeEvent(tEObj: TimeEventObject) {
+    private _next(next: number = 1, startTimestamp: number = (new Date().getTime()) ): number[] {
+        const tEData: TimeEventsData[] = this.tEData;
+        let nextTSs: number[] = [];
+        let tEDIndex: number;
+        let tEDLength: number = tEData.length;
+
+        for (tEDIndex=0; tEDIndex<tEDLength; tEDIndex++) {
+            const timeEvent: TimeEventsData = tEData[tEDIndex];
+
+            if (false === timeEvent._hasRepeatInterval) {
+                if (timeEvent.timestamp > startTimestamp) {
+                    nextTSs.push(timeEvent.timestamp);
+                }
+            }
+
+            else { // true === timeEvent._hasRepeatInterval
+                const repeatInterval = timeEvent.repeatInterval;
+                let timestamp: number;
+
+                if (timeEvent.timestamp > startTimestamp)
+                    timestamp = timeEvent.timestamp;
+                else
+                    timestamp = timeEvent.timestamp +
+                        Math.floor((startTimestamp - timeEvent.timestamp) / repeatInterval) *
+                        repeatInterval + repeatInterval;
+
+                let i: number;
+                for (i=0; i<next; i++) {
+                    nextTSs.push(timestamp);
+                    timestamp += repeatInterval;
+                }
+            }
+        }
+
+
+        nextTSs = uniq(nextTSs);
+
+        nextTSs.sort((a, b) => a > b ?1 :-1);
+        if (nextTSs.length > next)
+            nextTSs.length = next;
+
+        return nextTSs;
+    }
+
+
+    public addTimeEvent(tEObj: TimeEventObject) {
         let _hasRepeatInterval: boolean;
         let repeatInterval: number;
 
@@ -53,48 +114,11 @@ export class TimeEvents {
 
 
 
-    next(next: number = 1): number[] {
-        const currentTimestamp: number = new Date().getTime();
-        const tEData: TimeEventsData[] = this.tEData;
-        let nextTSs: number[] = [];
-        let tEDIndex: number;
-        let tEDLength: number = tEData.length;
+    public nextAfter(next: number = 1, startTimestamp: number): number[] {
+        return this._next(next, startTimestamp);
+    }
 
-        for (tEDIndex=0; tEDIndex<tEDLength; tEDIndex++) {
-            const timeEvent: TimeEventsData = tEData[tEDIndex];
-
-            if (false === timeEvent._hasRepeatInterval) {
-                if (timeEvent.timestamp > currentTimestamp) {
-                    nextTSs.push(timeEvent.timestamp);
-                }
-            }
-
-            else { // true === timeEvent._hasRepeatInterval
-                const repeatInterval = timeEvent.repeatInterval;
-                let timestamp: number;
-
-                if (timeEvent.timestamp > currentTimestamp)
-                    timestamp = timeEvent.timestamp;
-                else
-                    timestamp = timeEvent.timestamp +
-                        Math.floor((currentTimestamp - timeEvent.timestamp) / repeatInterval) *
-                        repeatInterval + repeatInterval;
-
-                let i: number;
-                for (i=0; i<next; i++) {
-                    nextTSs.push(timestamp);
-                    timestamp += repeatInterval;
-                }
-            }
-        }
-
-        // remove duplicates
-        nextTSs = [...new Set(nextTSs)]; // TODO http://javascript-benchmark.info
-
-        nextTSs.sort((a, b) => a > b ?1 :-1);
-        if (nextTSs.length > next)
-            nextTSs.length = next;
-
-        return nextTSs;
+    public next(next: number = 1): number[] {
+        return this._next(next);
     }
 }

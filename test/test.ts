@@ -1,12 +1,27 @@
 import {expect} from 'chai';
-import {
-    TimeEvents
-} from '../lib/timeEvents';
+import { TimeEvents } from '../lib/timeEvents';
 
 
 
 describe('TimeEvents', () => {
     const HOUR: number = 3600000;
+
+
+
+    const uniq = (a: any[]): any[] => {
+        let obj = Object.create(null);
+        let i: number;
+        let l: number = a.length;
+
+        for (i=0; i<l; i++)
+            obj[ a[i] ] = a[i];
+
+        // ES-2017 Object.values
+        return Object.keys(obj).map(k => {
+            return obj[k];
+        });
+    };
+
 
 
     it('empty TimeEvent, next()', () => {
@@ -27,7 +42,7 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, next()', () => {
-        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
         const testTimestamp: number = timestamp;
         const timeEvents: TimeEvents = new TimeEvents();
         let i: number;
@@ -47,7 +62,7 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, next(16), add 7', () => {
-        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
         const timeEvents: TimeEvents = new TimeEvents();
         let testTimestamps: number[] = [];
         let i: number;
@@ -69,7 +84,7 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, next(16), add 19', () => {
-        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
         const timeEvents: TimeEvents = new TimeEvents();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
@@ -122,7 +137,7 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp (single), repeatInterval = 0, next(16)', () => {
-        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
         const interval: number = 0;
         const timeEvents: TimeEvents = new TimeEvents();
         const elementsCount: number = 16;
@@ -157,7 +172,7 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp (single), repeatInterval, next(16)', () => {
-        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
         const interval: number = HOUR;
         const timeEvents: TimeEvents = new TimeEvents();
         const elementsCount: number = 16;
@@ -204,7 +219,7 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, repeatInterval, next(16), unique', () => {
-        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
         const interval: number = HOUR;
         const timeEvents: TimeEvents = new TimeEvents();
         const elementsCount: number = 16;
@@ -238,7 +253,7 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, repeatInterval, next(16)', () => {
-        let timestamp: number = new Date().getTime() + 16 * 24 * HOUR;
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
         const interval: number = HOUR;
         const timeEvents: TimeEvents = new TimeEvents();
         const elementsCount: number = 16;
@@ -273,15 +288,62 @@ describe('TimeEvents', () => {
 
             testTimestamps = [...testTimestamps, ..._array];
 
-            timestamp += 8;
+            timestamp += 10000;
         }
 
-        //TODO testTimestamps = [...new Set(testTimestamps)];
+        testTimestamps = uniq(testTimestamps);
         testTimestamps.sort((a, b) => a > b ?1 :-1);
         testTimestamps.length = elementsCount;
 
         const r: number[] = timeEvents.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql(testTimestamps);
+    });
+
+
+
+    it('fromTimestamp, repeatInterval, nextAfter(16)', () => {
+        let timestamp: number = new Date().getTime() + 8 * 24 * HOUR;
+        const interval: number = 2 * HOUR;
+        const timeEvents: TimeEvents = new TimeEvents();
+        const elementsCount: number = 16;
+        const startTimestamp: number = timestamp + HOUR;
+        const addTimeEventsCount: number = 2;
+        let testTimestamps: number[] = [];
+        let i: number;
+
+        timeEvents.addTimeEvent({
+            fromTimestamp: 123456
+        });
+
+        for (i=0; i<addTimeEventsCount; i++) {
+            timeEvents.addTimeEvent({
+                fromTimestamp: timestamp,
+                repeatInterval: interval
+            });
+
+            let _timestamp: number = timestamp;
+            const _array: number[] = (<any>Array(elementsCount)).fill(0).map(() => {
+                let __timestamp: number = _timestamp;
+                _timestamp += interval;
+                return __timestamp;
+            });
+
+            testTimestamps = [...testTimestamps, ..._array];
+
+            timestamp += 10000;
+        }
+
+
+        const results: number[] = timeEvents.nextAfter(elementsCount, startTimestamp);
+
+        testTimestamps = uniq(testTimestamps);
+        testTimestamps = testTimestamps.filter((el) => {
+            return el > startTimestamp;
+        });
+        testTimestamps.sort((a, b) => a > b ?1 :-1);
+        testTimestamps.length = elementsCount;
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
     });
 });
