@@ -22,7 +22,7 @@ timeEvents.addTimeEvent({
     repeatInterval: 4000000000
 });
 
-// get 8 timestamp after new Date().getTime()
+// get 8 timestamps after new Date().getTime()
 const results0 = timeEvents.next(8);
 
 // get 5 timestamps after 1960000000000
