@@ -114,7 +114,7 @@ export class TimeEvents {
 
 
 
-    public nextAfter(next: number = 1, startTimestamp: number): number[] {
+    public nextAfter(next: number, startTimestamp: number): number[] {
         return this._next(next, startTimestamp);
     }
 

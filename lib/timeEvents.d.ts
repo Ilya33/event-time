@@ -7,7 +7,7 @@ export declare class TimeEvents {
     constructor();
     private _next;
     addTimeEvent(tEObj: TimeEventObject): void;
-    nextAfter(next: number | undefined, startTimestamp: number): number[];
+    nextAfter(next: number, startTimestamp: number): number[];
     next(next?: number): number[];
 }
 export {};
