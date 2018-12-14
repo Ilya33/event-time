@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
 var timeEvents_1 = require("../lib/timeEvents");
 describe('TimeEvents', function () {
-    var HOUR = 3600000;
+    var ONE_HOUR = 3600000;
+    var ONE_DAY = 86400000;
+    var ONE_WEEK = 604800000;
     var uniq = function (a) {
         var obj = Object.create(null);
         var i;
@@ -26,7 +28,7 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.is.empty;
     });
     it('fromTimestamp, next()', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
         var testTimestamp = timestamp;
         var timeEvents = new timeEvents_1.TimeEvents();
         var i;
@@ -34,13 +36,13 @@ describe('TimeEvents', function () {
             timeEvents.addTimeEvent({
                 fromTimestamp: timestamp
             });
-            timestamp += HOUR;
+            timestamp += ONE_HOUR;
         }
         var r = timeEvents.next();
         chai_1.expect(r).to.be.an('array').that.eql([testTimestamp]);
     });
     it('fromTimestamp, next(16), add 7', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var testTimestamps = [];
         var i;
@@ -49,13 +51,13 @@ describe('TimeEvents', function () {
                 fromTimestamp: timestamp
             });
             testTimestamps.push(timestamp);
-            timestamp += HOUR;
+            timestamp += ONE_HOUR;
         }
         var r = timeEvents.next(16);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, next(16), add 19', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
         var testTimestamps = [];
@@ -65,14 +67,14 @@ describe('TimeEvents', function () {
                 fromTimestamp: timestamp
             });
             testTimestamps.push(timestamp);
-            timestamp += HOUR;
+            timestamp += ONE_HOUR;
         }
         testTimestamps.length = elementsCount;
         var r = timeEvents.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, next(16), add 16, 3 in the past', function () {
-        var timestamp = new Date().getTime() - 2.5 * HOUR;
+        var timestamp = new Date().getTime() - 2.5 * ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
         var testTimestamps = [];
@@ -82,7 +84,7 @@ describe('TimeEvents', function () {
                 fromTimestamp: timestamp
             });
             testTimestamps.push(timestamp);
-            timestamp += HOUR;
+            timestamp += ONE_HOUR;
         }
         testTimestamps.shift();
         testTimestamps.shift();
@@ -91,7 +93,7 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp (single), repeatInterval = 0, next(16)', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
         var interval = 0;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
@@ -102,7 +104,7 @@ describe('TimeEvents', function () {
         var r = timeEvents.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql([timestamp]);
     });
-    it('fromTimestamp (single), repeatInterval = -5', function () {
+    it('fromTimestamp (single), repeatInterval = -5 (error)', function () {
         var timeEvents = new timeEvents_1.TimeEvents();
         var hasError = false;
         try {
@@ -117,8 +119,8 @@ describe('TimeEvents', function () {
         chai_1.expect(hasError).eql(true);
     });
     it('fromTimestamp (single), repeatInterval, next(16)', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
-        var interval = HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
+        var interval = ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
         timeEvents.addTimeEvent({
@@ -133,8 +135,8 @@ describe('TimeEvents', function () {
         }));
     });
     it('fromTimestamp (single), repeatInterval, next(16), 3 in the past', function () {
-        var timestamp = new Date().getTime() - 25 * HOUR;
-        var interval = 10 * HOUR;
+        var timestamp = new Date().getTime() - 25 * ONE_HOUR;
+        var interval = 10 * ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
         timeEvents.addTimeEvent({
@@ -150,8 +152,8 @@ describe('TimeEvents', function () {
         }));
     });
     it('fromTimestamp, repeatInterval, next(16), unique', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
-        var interval = HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
+        var interval = ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
         var testTimestamps = [];
@@ -175,8 +177,8 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, repeatInterval, next(16)', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
-        var interval = HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
+        var interval = ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
         var testTimestamps = [];
@@ -215,11 +217,11 @@ describe('TimeEvents', function () {
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, repeatInterval, nextAfter(16)', function () {
-        var timestamp = new Date().getTime() + 8 * 24 * HOUR;
-        var interval = 2 * HOUR;
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
+        var interval = 2 * ONE_HOUR;
         var timeEvents = new timeEvents_1.TimeEvents();
         var elementsCount = 16;
-        var startTimestamp = timestamp + HOUR;
+        var startTimestamp = timestamp + ONE_HOUR;
         var addTimeEventsCount = 2;
         var testTimestamps = [];
         var i;
@@ -252,4 +254,138 @@ describe('TimeEvents', function () {
         testTimestamps.length = elementsCount;
         chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
     });
+    it('fromTimestamp, repeatInterval and repeatEvery (error)', function () {
+        var timeEvents = new timeEvents_1.TimeEvents();
+        var hasError = false;
+        try {
+            timeEvents.addTimeEvent({
+                fromTimestamp: 123456,
+                repeatInterval: 1,
+                repeatEvery: {
+                    daysOfWeek: [0]
+                }
+            });
+        }
+        catch (e) {
+            hasError = true;
+        }
+        chai_1.expect(hasError).eql(true);
+    });
+    it('fromTimestamp, repeatEvery daysOfWeek and daysOfMonth (not implemented)', function () {
+        var timeEvents = new timeEvents_1.TimeEvents();
+        var hasError = false;
+        try {
+            timeEvents.addTimeEvent({
+                fromTimestamp: 123456,
+                repeatEvery: {
+                    daysOfWeek: [0],
+                    daysOfMonth: [2]
+                }
+            });
+        }
+        catch (e) {
+            hasError = true;
+        }
+        chai_1.expect(hasError).eql(true);
+    });
+    it('fromTimestamp, repeatEvery daysOfWeek (error)', function () {
+        var timeEvents = new timeEvents_1.TimeEvents();
+        var hasError = false;
+        try {
+            timeEvents.addTimeEvent({
+                fromTimestamp: 123456,
+                repeatEvery: {
+                    daysOfWeek: [24]
+                }
+            });
+        }
+        catch (e) {
+            hasError = true;
+        }
+        chai_1.expect(hasError).eql(true);
+    });
+    it('fromTimestamp, repeatEvery daysOfWeek (error) 1', function () {
+        var timeEvents = new timeEvents_1.TimeEvents();
+        var hasError = false;
+        try {
+            timeEvents.addTimeEvent({
+                fromTimestamp: 123456,
+                repeatEvery: {
+                    daysOfWeek: [4.000004]
+                }
+            });
+        }
+        catch (e) {
+            hasError = true;
+        }
+        chai_1.expect(hasError).eql(true);
+    });
+    it('fromTimestamp, repeatEvery daysOfWeek, tsDay === daysOfWeek[n], next(16)', function () {
+        var timestamp = new Date().getTime() + 8 * 24 * ONE_HOUR;
+        var tsDay = new Date(timestamp).getDay();
+        var timeEvents = new timeEvents_1.TimeEvents();
+        var elementsCount = 16;
+        var testTimestamps = [];
+        timeEvents.addTimeEvent({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                daysOfWeek: [tsDay]
+            }
+        });
+        var results = timeEvents.next(elementsCount);
+        testTimestamps = Array(elementsCount).fill(0).map(function () {
+            var _timestamp = timestamp;
+            timestamp += ONE_WEEK;
+            return _timestamp;
+        });
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatEvery daysOfWeek, tsDay < daysOfWeek[n], next(16)', function () {
+        var timestamp = 1544516091479; // Tue Dec 11 2018 08:14:51 GMT+0000
+        var tsDay = new Date(timestamp).getDay();
+        var timeEvents = new timeEvents_1.TimeEvents();
+        var elementsCount = 16;
+        var testTimestamps = [];
+        timeEvents.addTimeEvent({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                daysOfWeek: [4]
+            }
+        });
+        var results = timeEvents.next(elementsCount);
+        timestamp += 2 * ONE_DAY;
+        testTimestamps = Array(elementsCount).fill(0).map(function () {
+            var _timestamp = timestamp;
+            timestamp += ONE_WEEK;
+            return _timestamp;
+        });
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    /*it('fromTimestamp, repeatEvery daysOfWeek, tsDay > daysOfWeek[n], next(16)', () => {
+        let timestamp: number = 1544516091479 + 3 * ONE_DAY; // Thu Dec 13 2018 08:14:51 GMT + 3 * ONE_DAY
+        const tsDay = new Date(timestamp).getDay();
+        const timeEvents: TimeEvents = new TimeEvents();
+        const elementsCount: number = 16;
+        let testTimestamps: number[] = [];
+
+        timeEvents.addTimeEvent({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                daysOfWeek: [3]
+            }
+        });
+
+
+        const results: number[] = timeEvents.next(elementsCount);
+
+        timestamp -= 2 * ONE_DAY;
+
+        testTimestamps = (<any>Array(elementsCount)).fill(0).map(() => {
+            let _timestamp: number = timestamp;
+            timestamp += ONE_WEEK;
+            return _timestamp;
+        });
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });*/
 });

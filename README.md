@@ -1,4 +1,4 @@
-A typescript (javascript) library which helps to calculate future timestamp(s)
+A typescript (javascript) library which helps to calculate future timestamps
 for an event.
 
 
@@ -32,7 +32,7 @@ const results1 = timeEvents.nextAfter(5, 1960000000000);
 
 ### See also
 
-[Later](http://bunkat.github.io/later/)
+[Later](https://github.com/bunkat/later)
 
 
 ## License

@@ -4,6 +4,10 @@
 interface TimeEventObject {
     fromTimestamp: number;
     repeatInterval?: number;
+    repeatEvery?: {
+        daysOfWeek?: number[],
+        daysOfMonth?: number[]
+    }
 }
 
 
@@ -33,7 +37,14 @@ const uniq = (a: any[]): any[] => {
 
 
 export class TimeEvents {
+    readonly ONE_DAY  = 86400000;
+    readonly ONE_WEEK = 604800000;
+
+
+
     private tEData: TimeEventsData[] = [];
+
+
 
     constructor() {}
 
@@ -101,6 +112,49 @@ export class TimeEvents {
             repeatInterval = 0;
 
             _hasRepeatInterval = false;
+        }
+
+
+        if (tEObj.hasOwnProperty('repeatEvery') && undefined !== tEObj.repeatEvery &&
+            0 !== Object.keys( tEObj.repeatEvery ).length
+        ) {
+            if (true == _hasRepeatInterval)
+                throw new Error('You may not specify more than one `repeatInterval` or `repeatEvery` option');
+
+
+            if (1 !== Object.keys( tEObj.repeatEvery ).length)
+                throw new Error('You may not specify more than one `daysOfWeek` or `daysOfMonth` option (not implemented)');
+
+
+            const repeatEvery = tEObj.repeatEvery;
+            if (repeatEvery.hasOwnProperty('daysOfWeek') && undefined !== repeatEvery.daysOfWeek &&
+                0 !== repeatEvery.daysOfWeek.length
+            ) {
+                const days = uniq(repeatEvery.daysOfWeek);
+                let l: number = days.length;
+                let i: number;
+
+                if (l !== days.filter(el =>
+                    el === 0 || el === 1 || el === 2 || el === 3 || el === 4 ||
+                    el === 5 || el === 6
+                ).length)
+                    throw new Error('`days` MUST ba an array with days of week numbers 0-6: days since Sunday');
+
+                const tsDay = new Date(tEObj.fromTimestamp).getDay();
+                for (i=0; i<l; i++) {
+                    let d = days[i] - tsDay;
+
+                    if (d < 0)
+                        d += 8;
+
+                    this.addTimeEvent({
+                        fromTimestamp: tEObj.fromTimestamp + d * this.ONE_DAY,
+                        repeatInterval: this.ONE_WEEK
+                    });
+                }
+
+                return;
+            }
         }
 
 
