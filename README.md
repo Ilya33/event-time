@@ -10,7 +10,7 @@ for an event.
 ### JavaScript
 
 ```js
-const EventTime = require('time-events').EventTime;
+const EventTime = require('event-time').EventTime;
 
 const eventTime = new EventTime();
 
