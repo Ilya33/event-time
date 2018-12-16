@@ -6,7 +6,7 @@ interface TimeEventObject {
     repeatInterval?: number;
     repeatEvery?: {
         daysOfWeek?: number[],
-        daysOfMonth?: number[]
+//        daysOfMonth?: number[]
     }
 }
 
@@ -145,7 +145,7 @@ export class TimeEvents {
                     let d = days[i] - tsDay;
 
                     if (d < 0)
-                        d += 8;
+                        d += 7;
 
                     this.addTimeEvent({
                         fromTimestamp: tEObj.fromTimestamp + d * this.ONE_DAY,

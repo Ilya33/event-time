@@ -3,7 +3,6 @@ interface TimeEventObject {
     repeatInterval?: number;
     repeatEvery?: {
         daysOfWeek?: number[];
-        daysOfMonth?: number[];
     };
 }
 export declare class TimeEvents {
