@@ -1,9 +1,9 @@
 import {expect} from 'chai';
-import { TimeEvents } from '../lib/timeEvents';
+import { EventTime } from '../lib/eventTime';
 
 
 
-describe('TimeEvents', () => {
+describe('EventTime', () => {
     const ONE_HOUR: number = 3600000;
     const ONE_DAY: number  = 86400000;
     const ONE_WEEK: number = 604800000;
@@ -26,17 +26,17 @@ describe('TimeEvents', () => {
 
 
 
-    it('empty TimeEvent, next()', () => {
-        const timeEvents: TimeEvents = new TimeEvents();
-        const r: number[] = timeEvents.next();
+    it('empty EventTime, next()', () => {
+        const eventTime: EventTime = new EventTime();
+        const r: number[] = eventTime.next();
 
         expect(r).to.be.an('array').that.is.empty;
     });
 
 
-    it('empty TimeEvent, next(16)', () => {
-        const timeEvents: TimeEvents = new TimeEvents();
-        const r: number[] = timeEvents.next(16);
+    it('empty EventTime, next(16)', () => {
+        const eventTime: EventTime = new EventTime();
+        const r: number[] = eventTime.next(16);
 
         expect(r).to.be.an('array').that.is.empty;
     });
@@ -46,18 +46,18 @@ describe('TimeEvents', () => {
     it('fromTimestamp, next()', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
         const testTimestamp: number = timestamp;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         let i: number;
 
         for (i=0; i<8; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
 
             timestamp += ONE_HOUR;
         }
 
-        const r: number[] = timeEvents.next();
+        const r: number[] = eventTime.next();
 
         expect(r).to.be.an('array').that.eql([testTimestamp]);
     });
@@ -65,12 +65,12 @@ describe('TimeEvents', () => {
 
     it('fromTimestamp, next(16), add 7', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         let testTimestamps: number[] = [];
         let i: number;
 
         for (i=0; i<7; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
 
@@ -79,7 +79,7 @@ describe('TimeEvents', () => {
             timestamp += ONE_HOUR;
         }
 
-        const r: number[] = timeEvents.next(16);
+        const r: number[] = eventTime.next(16);
 
         expect(r).to.be.an('array').that.eql(testTimestamps);
     });
@@ -87,13 +87,13 @@ describe('TimeEvents', () => {
 
     it('fromTimestamp, next(16), add 19', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         let i: number;
 
         for (i=0; i<19; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
 
@@ -104,7 +104,7 @@ describe('TimeEvents', () => {
 
         testTimestamps.length = elementsCount;
 
-        const r: number[] = timeEvents.next(elementsCount);
+        const r: number[] = eventTime.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql(testTimestamps);
     });
@@ -112,13 +112,13 @@ describe('TimeEvents', () => {
 
     it('fromTimestamp, next(16), add 16, 3 in the past', () => {
         let timestamp: number = new Date().getTime() - 2.5 * ONE_HOUR;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         let i: number;
 
         for (i=0; i<16; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
 
@@ -131,7 +131,7 @@ describe('TimeEvents', () => {
         testTimestamps.shift();
         testTimestamps.shift();
 
-        const r: number[] = timeEvents.next(elementsCount);
+        const r: number[] = eventTime.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql(testTimestamps);
     });
@@ -141,26 +141,26 @@ describe('TimeEvents', () => {
     it('fromTimestamp (single), repeatInterval = 0, next(16)', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
         const interval: number = 0;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
 
-        const r: number[] = timeEvents.next(elementsCount);
+        const r: number[] = eventTime.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql([timestamp]);
     });
 
 
     it('fromTimestamp (single), repeatInterval = -5 (error)', () => {
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         let hasError: boolean = false;
 
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatInterval: -5
             });
@@ -176,15 +176,15 @@ describe('TimeEvents', () => {
     it('fromTimestamp (single), repeatInterval, next(16)', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
         const interval: number = ONE_HOUR;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
 
-        const r: number[] = timeEvents.next(elementsCount);
+        const r: number[] = eventTime.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql(
             (<any>Array(elementsCount)).fill(0).map(() => {
@@ -199,15 +199,15 @@ describe('TimeEvents', () => {
     it('fromTimestamp (single), repeatInterval, next(16), 3 in the past', () => {
         let timestamp: number = new Date().getTime() - 25 * ONE_HOUR;
         const interval: number = 10 * ONE_HOUR;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
 
-        const r: number[] = timeEvents.next(elementsCount);
+        const r: number[] = eventTime.next(elementsCount);
 
         timestamp += interval * 3;
         expect(r).to.be.an('array').that.eql(
@@ -223,11 +223,11 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatInterval, next(16), unique', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
         const interval: number = ONE_HOUR;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
@@ -243,12 +243,12 @@ describe('TimeEvents', () => {
 
         timestamp += interval + interval;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: anotherTimestamp,
             repeatInterval: interval
         });
 
-        const r: number[] = timeEvents.next(elementsCount);
+        const r: number[] = eventTime.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql(testTimestamps);
     });
@@ -257,17 +257,17 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatInterval, next(16)', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
         const interval: number = ONE_HOUR;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         let i: number;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: 123456
         });
 
         for (i=0; i<5; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
 
@@ -276,7 +276,7 @@ describe('TimeEvents', () => {
         }
 
         for (i=0; i<4; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp,
                 repeatInterval: interval
             });
@@ -297,7 +297,7 @@ describe('TimeEvents', () => {
         testTimestamps.sort((a, b) => a > b ?1 :-1);
         testTimestamps.length = elementsCount;
 
-        const r: number[] = timeEvents.next(elementsCount);
+        const r: number[] = eventTime.next(elementsCount);
 
         expect(r).to.be.an('array').that.eql(testTimestamps);
     });
@@ -307,19 +307,19 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatInterval, nextAfter(16)', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
         const interval: number = 2 * ONE_HOUR;
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         const startTimestamp: number = timestamp + ONE_HOUR;
-        const addTimeEventsCount: number = 2;
+        const addEventTimesCount: number = 2;
         let testTimestamps: number[] = [];
         let i: number;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: 123456
         });
 
-        for (i=0; i<addTimeEventsCount; i++) {
-            timeEvents.addTimeEvent({
+        for (i=0; i<addEventTimesCount; i++) {
+            eventTime.addEventTime({
                 fromTimestamp: timestamp,
                 repeatInterval: interval
             });
@@ -337,7 +337,7 @@ describe('TimeEvents', () => {
         }
 
 
-        const results: number[] = timeEvents.nextAfter(elementsCount, startTimestamp);
+        const results: number[] = eventTime.nextAfter(elementsCount, startTimestamp);
 
         testTimestamps = uniq(testTimestamps);
         testTimestamps = testTimestamps.filter((el) => {
@@ -352,11 +352,11 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, repeatInterval and repeatEvery (error)', () => {
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         let hasError: boolean = false;
 
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatInterval: 1,
                 repeatEvery: {
@@ -373,11 +373,11 @@ describe('TimeEvents', () => {
 
 
 /*    it('fromTimestamp, repeatEvery daysOfWeek and daysOfMonth (not implemented)', () => {
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         let hasError: boolean = false;
 
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatEvery: {
                     daysOfWeek: [0],
@@ -394,11 +394,11 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, repeatEvery daysOfWeek (error)', () => {
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         let hasError: boolean = false;
 
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatEvery: {
                     daysOfWeek: [24]
@@ -414,11 +414,11 @@ describe('TimeEvents', () => {
 
 
     it('fromTimestamp, repeatEvery daysOfWeek (error) 1', () => {
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         let hasError: boolean = false;
 
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatEvery: {
                     daysOfWeek: [4.000004]
@@ -436,11 +436,11 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatEvery daysOfWeek, tsDay === daysOfWeek[n], next(16)', () => {
         let timestamp: number = new Date().getTime() + ONE_WEEK;
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: [tsDay]
@@ -448,7 +448,7 @@ describe('TimeEvents', () => {
         });
 
 
-        const results: number[] = timeEvents.next(elementsCount);
+        const results: number[] = eventTime.next(elementsCount);
 
         testTimestamps = (<any>Array(elementsCount)).fill(0).map(() => {
             let _timestamp: number = timestamp;
@@ -467,7 +467,7 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatEvery daysOfWeek, tsDay < daysOfWeek[n], next(16)', () => {
         let timestamp: number = 1544516091479; // Tue Dec 11 2018 08:14:51 GMT+0000
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
 
@@ -476,14 +476,14 @@ describe('TimeEvents', () => {
             timestamp += Math.floor((currentTimestamp - timestamp) / ONE_WEEK) * ONE_WEEK;
         timestamp += 2 * ONE_WEEK;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: [4]
             }
         });
 
-        const results: number[] = timeEvents.next(elementsCount);
+        const results: number[] = eventTime.next(elementsCount);
 
         timestamp += 2 * ONE_DAY;
 
@@ -504,7 +504,7 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatEvery daysOfWeek, tsDay > daysOfWeek[n], next(16)', () => {
         let timestamp: number = 1544516091479 + 3 * ONE_DAY; // Thu Dec 13 2018 08:14:51 GMT + 3 * ONE_DAY
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
 
@@ -513,14 +513,14 @@ describe('TimeEvents', () => {
             timestamp += Math.floor((currentTimestamp - timestamp) / ONE_WEEK) * ONE_WEEK;
         timestamp += 2 * ONE_WEEK;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: [3]
             }
         });
 
-        const results: number[] = timeEvents.next(elementsCount);
+        const results: number[] = eventTime.next(elementsCount);
 
         // Fri: 5 (+0), Sat: 6 (+1), Sun: 0 (+2), Mon: 1 (+3), Thu: 2 (+4), Wed: 3 (+5)
         timestamp += 5 * ONE_DAY;
@@ -542,7 +542,7 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatEvery daysOfWeek, daysOfWeek[n, ...], next(16)', () => {
         let timestamp: number = 1544516091479 + ONE_DAY; // Thu Dec 13 2018 08:14:51 GMT + ONE_DAY
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         const testDaysOfWeek = [1, 3, 6];
@@ -552,14 +552,14 @@ describe('TimeEvents', () => {
             timestamp += Math.floor((currentTimestamp - timestamp) / ONE_WEEK) * ONE_WEEK;
         timestamp += 2 * ONE_WEEK;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
 
-        const results: number[] = timeEvents.next(elementsCount);
+        const results: number[] = eventTime.next(elementsCount);
 
         testDaysOfWeek.forEach((day) => {
             let loopTimestamp = timestamp;
@@ -590,19 +590,19 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatEvery daysOfWeek, daysOfWeek[n, ...], next(16), few in the past', () => {
         let timestamp: number = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         const testDaysOfWeek = [1, 2, 5];
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
 
-        const results: number[] = timeEvents.next(elementsCount);
+        const results: number[] = eventTime.next(elementsCount);
 
         testDaysOfWeek.forEach((day) => {
             let loopTimestamp = timestamp;
@@ -639,12 +639,12 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatEvery daysOfWeek, daysOfWeek[n, ...], nextAfter(16), few in the past', () => {
         let timestamp: number = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         const testDaysOfWeek = [1, 2, 5];
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
@@ -652,7 +652,7 @@ describe('TimeEvents', () => {
         });
 
         const startTimestamp = new Date().getTime() + ONE_DAY;
-        const results: number[] = timeEvents.nextAfter(elementsCount, startTimestamp);
+        const results: number[] = eventTime.nextAfter(elementsCount, startTimestamp);
 
         testDaysOfWeek.forEach((day) => {
             let loopTimestamp = timestamp;
@@ -688,13 +688,13 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatInterval, repeatEvery daysOfWeek, next(16)', () => {
         let timestamp: number = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         const testDaysOfWeek = [1, 2, 5];
         const currentTimestamp = new Date().getTime();
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: currentTimestamp + 4 * ONE_HOUR,
         });
 
@@ -704,7 +704,7 @@ describe('TimeEvents', () => {
         let loopTimestamp = currentTimestamp - ONE_HOUR;
         let loopRepeatInterval = 2 * ONE_HOUR;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: loopTimestamp,
             repeatInterval: loopRepeatInterval
         });
@@ -718,14 +718,14 @@ describe('TimeEvents', () => {
         testTimestamps = [...testTimestamps, ..._array];
 
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
 
-        const results: number[] = timeEvents.next(elementsCount);
+        const results: number[] = eventTime.next(elementsCount);
 
 
         testDaysOfWeek.forEach((day) => {
@@ -763,13 +763,13 @@ describe('TimeEvents', () => {
     it('fromTimestamp, repeatInterval, repeatEvery daysOfWeek, nextAfter(16)', () => {
         let timestamp: number = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         const tsDay = new Date(timestamp).getDay();
-        const timeEvents: TimeEvents = new TimeEvents();
+        const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
         const testDaysOfWeek = [2, 3];
         const startTimestamp = new Date().getTime() + 2 * ONE_HOUR;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: startTimestamp + 4 * ONE_HOUR,
         });
 
@@ -779,7 +779,7 @@ describe('TimeEvents', () => {
         let loopTimestamp = startTimestamp - ONE_HOUR;
         let loopRepeatInterval = 2 * ONE_HOUR;
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: loopTimestamp,
             repeatInterval: loopRepeatInterval
         });
@@ -793,14 +793,14 @@ describe('TimeEvents', () => {
         testTimestamps = [...testTimestamps, ..._array];
 
 
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
 
-        const results: number[] = timeEvents.nextAfter(elementsCount, startTimestamp);
+        const results: number[] = eventTime.nextAfter(elementsCount, startTimestamp);
 
 
         testDaysOfWeek.forEach((day) => {

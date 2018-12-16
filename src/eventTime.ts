@@ -1,7 +1,7 @@
-// time-events - Copyright (C) 2018 Ilya Pavlov
-// time-events is licensed under the MIT License
+// event-time - Copyright (C) 2018 Ilya Pavlov
+// event-time is licensed under the MIT License
 
-interface TimeEventObject {
+interface EventTimeObject {
     fromTimestamp: number;
     repeatInterval?: number;
     repeatEvery?: {
@@ -11,11 +11,11 @@ interface TimeEventObject {
 }
 
 
-interface TimeEventsData {
-        _hasRepeatInterval: boolean;
+interface EventTimeData {
+    _hasRepeatInterval: boolean;
 
-        timestamp: number;
-        repeatInterval: number;
+    timestamp: number;
+    repeatInterval: number;
 };
 
 
@@ -36,13 +36,13 @@ const uniq = (a: any[]): any[] => {
 
 
 
-export class TimeEvents {
+export class EventTime {
     readonly ONE_DAY  = 86400000;
     readonly ONE_WEEK = 604800000;
 
 
 
-    private tEData: TimeEventsData[] = [];
+    private eTData: EventTimeData[] = [];
 
 
 
@@ -51,29 +51,29 @@ export class TimeEvents {
 
 
     private _next(next: number = 1, startTimestamp: number = (new Date().getTime()) ): number[] {
-        const tEData: TimeEventsData[] = this.tEData;
+        const eTData: EventTimeData[] = this.eTData;
         let nextTSs: number[] = [];
-        let tEDIndex: number;
-        let tEDLength: number = tEData.length;
+        let eTDIndex: number;
+        let eTDLength: number = eTData.length;
 
-        for (tEDIndex=0; tEDIndex<tEDLength; tEDIndex++) {
-            const timeEvent: TimeEventsData = tEData[tEDIndex];
+        for (eTDIndex=0; eTDIndex<eTDLength; eTDIndex++) {
+            const eventTime: EventTimeData = eTData[eTDIndex];
 
-            if (false === timeEvent._hasRepeatInterval) {
-                if (timeEvent.timestamp > startTimestamp) {
-                    nextTSs.push(timeEvent.timestamp);
+            if (false === eventTime._hasRepeatInterval) {
+                if (eventTime.timestamp > startTimestamp) {
+                    nextTSs.push(eventTime.timestamp);
                 }
             }
 
-            else { // true === timeEvent._hasRepeatInterval
-                const repeatInterval = timeEvent.repeatInterval;
+            else { // true === eventTime._hasRepeatInterval
+                const repeatInterval = eventTime.repeatInterval;
                 let timestamp: number;
 
-                if (timeEvent.timestamp > startTimestamp)
-                    timestamp = timeEvent.timestamp;
+                if (eventTime.timestamp > startTimestamp)
+                    timestamp = eventTime.timestamp;
                 else
-                    timestamp = timeEvent.timestamp +
-                        Math.floor((startTimestamp - timeEvent.timestamp) / repeatInterval) *
+                    timestamp = eventTime.timestamp +
+                        Math.floor((startTimestamp - eventTime.timestamp) / repeatInterval) *
                         repeatInterval + repeatInterval;
 
                 let i: number;
@@ -95,14 +95,15 @@ export class TimeEvents {
     }
 
 
-    public addTimeEvent(tEObj: TimeEventObject) {
+
+    public addEventTime(eTObj: EventTimeObject) {
         let _hasRepeatInterval: boolean;
         let repeatInterval: number;
 
-        if (tEObj.hasOwnProperty('repeatInterval') && undefined !== tEObj.repeatInterval &&
-            0 !== tEObj.repeatInterval
+        if (eTObj.hasOwnProperty('repeatInterval') && undefined !== eTObj.repeatInterval &&
+            0 !== eTObj.repeatInterval
         ) {
-            repeatInterval = tEObj.repeatInterval;
+            repeatInterval = eTObj.repeatInterval;
             if (repeatInterval < 0)
                 throw new Error('The `repeatInterval` MUST be >= 0');
 
@@ -115,18 +116,18 @@ export class TimeEvents {
         }
 
 
-        if (tEObj.hasOwnProperty('repeatEvery') && undefined !== tEObj.repeatEvery &&
-            0 !== Object.keys( tEObj.repeatEvery ).length
+        if (eTObj.hasOwnProperty('repeatEvery') && undefined !== eTObj.repeatEvery &&
+            0 !== Object.keys( eTObj.repeatEvery ).length
         ) {
             if (true == _hasRepeatInterval)
                 throw new Error('You may not specify more than one `repeatInterval` or `repeatEvery` option');
 
 
-            if (1 !== Object.keys( tEObj.repeatEvery ).length)
+            if (1 !== Object.keys( eTObj.repeatEvery ).length)
                 throw new Error('You may not specify more than one `daysOfWeek` or `daysOfMonth` option (not implemented)');
 
 
-            const repeatEvery = tEObj.repeatEvery;
+            const repeatEvery = eTObj.repeatEvery;
             if (repeatEvery.hasOwnProperty('daysOfWeek') && undefined !== repeatEvery.daysOfWeek &&
                 0 !== repeatEvery.daysOfWeek.length
             ) {
@@ -140,15 +141,15 @@ export class TimeEvents {
                 ).length)
                     throw new Error('`days` MUST ba an array with days of week numbers 0-6: days since Sunday');
 
-                const tsDay = new Date(tEObj.fromTimestamp).getDay();
+                const tsDay = new Date(eTObj.fromTimestamp).getDay();
                 for (i=0; i<l; i++) {
                     let d = days[i] - tsDay;
 
                     if (d < 0)
                         d += 7;
 
-                    this.addTimeEvent({
-                        fromTimestamp: tEObj.fromTimestamp + d * this.ONE_DAY,
+                    this.addEventTime({
+                        fromTimestamp: eTObj.fromTimestamp + d * this.ONE_DAY,
                         repeatInterval: this.ONE_WEEK
                     });
                 }
@@ -158,10 +159,10 @@ export class TimeEvents {
         }
 
 
-        this.tEData.push({
+        this.eTData.push({
             _hasRepeatInterval,
 
-            timestamp: tEObj.fromTimestamp,
+            timestamp: eTObj.fromTimestamp,
             repeatInterval
         });
     }

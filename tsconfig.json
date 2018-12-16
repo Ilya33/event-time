@@ -1,6 +1,6 @@
 {
     "files": [
-        "src/timeEvents"
+        "src/eventTime"
     ],
     "compilerOptions": {
         "target": "es6",

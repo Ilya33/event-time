@@ -1,9 +1,9 @@
 {
-  "name": "time-events",
+  "name": "event-time",
   "version": "0.0.1",
   "description": "",
-  "main": "lib/timeEvents.js",
-  "types": "lib/timeEvents.d.ts",
+  "main": "lib/eventTime.js",
+  "types": "lib/eventTime.d.ts",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/Ilya33/event-time.git"
   },
   "keywords": [
     "timestamp"
@@ -20,9 +20,9 @@
   "author": "Ilya Pavlov <fsilux@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/Ilya33/event-time/issues"
   },
-  "homepage": "",
+  "homepage": "https://github.com/Ilya33/event-time#readme",
   "devDependencies": {
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",

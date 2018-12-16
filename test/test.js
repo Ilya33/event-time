@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
-var timeEvents_1 = require("../lib/timeEvents");
-describe('TimeEvents', function () {
+var eventTime_1 = require("../lib/eventTime");
+describe('EventTime', function () {
     var ONE_HOUR = 3600000;
     var ONE_DAY = 86400000;
     var ONE_WEEK = 604800000;
@@ -17,70 +17,70 @@ describe('TimeEvents', function () {
             return obj[k];
         });
     };
-    it('empty TimeEvent, next()', function () {
-        var timeEvents = new timeEvents_1.TimeEvents();
-        var r = timeEvents.next();
+    it('empty EventTime, next()', function () {
+        var eventTime = new eventTime_1.EventTime();
+        var r = eventTime.next();
         chai_1.expect(r).to.be.an('array').that.is.empty;
     });
-    it('empty TimeEvent, next(16)', function () {
-        var timeEvents = new timeEvents_1.TimeEvents();
-        var r = timeEvents.next(16);
+    it('empty EventTime, next(16)', function () {
+        var eventTime = new eventTime_1.EventTime();
+        var r = eventTime.next(16);
         chai_1.expect(r).to.be.an('array').that.is.empty;
     });
     it('fromTimestamp, next()', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var testTimestamp = timestamp;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var i;
         for (i = 0; i < 8; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
             timestamp += ONE_HOUR;
         }
-        var r = timeEvents.next();
+        var r = eventTime.next();
         chai_1.expect(r).to.be.an('array').that.eql([testTimestamp]);
     });
     it('fromTimestamp, next(16), add 7', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var testTimestamps = [];
         var i;
         for (i = 0; i < 7; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
             testTimestamps.push(timestamp);
             timestamp += ONE_HOUR;
         }
-        var r = timeEvents.next(16);
+        var r = eventTime.next(16);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, next(16), add 19', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var i;
         for (i = 0; i < 19; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
             testTimestamps.push(timestamp);
             timestamp += ONE_HOUR;
         }
         testTimestamps.length = elementsCount;
-        var r = timeEvents.next(elementsCount);
+        var r = eventTime.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, next(16), add 16, 3 in the past', function () {
         var timestamp = new Date().getTime() - 2.5 * ONE_HOUR;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var i;
         for (i = 0; i < 16; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
             testTimestamps.push(timestamp);
@@ -89,26 +89,26 @@ describe('TimeEvents', function () {
         testTimestamps.shift();
         testTimestamps.shift();
         testTimestamps.shift();
-        var r = timeEvents.next(elementsCount);
+        var r = eventTime.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp (single), repeatInterval = 0, next(16)', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var interval = 0;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
-        var r = timeEvents.next(elementsCount);
+        var r = eventTime.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql([timestamp]);
     });
     it('fromTimestamp (single), repeatInterval = -5 (error)', function () {
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var hasError = false;
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatInterval: -5
             });
@@ -121,13 +121,13 @@ describe('TimeEvents', function () {
     it('fromTimestamp (single), repeatInterval, next(16)', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var interval = ONE_HOUR;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
-        var r = timeEvents.next(elementsCount);
+        var r = eventTime.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(Array(elementsCount).fill(0).map(function () {
             var _timestamp = timestamp;
             timestamp += interval;
@@ -137,13 +137,13 @@ describe('TimeEvents', function () {
     it('fromTimestamp (single), repeatInterval, next(16), 3 in the past', function () {
         var timestamp = new Date().getTime() - 25 * ONE_HOUR;
         var interval = 10 * ONE_HOUR;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
-        var r = timeEvents.next(elementsCount);
+        var r = eventTime.next(elementsCount);
         timestamp += interval * 3;
         chai_1.expect(r).to.be.an('array').that.eql(Array(elementsCount).fill(0).map(function () {
             var _timestamp = timestamp;
@@ -154,10 +154,10 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatInterval, next(16), unique', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var interval = ONE_HOUR;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatInterval: interval
         });
@@ -169,32 +169,32 @@ describe('TimeEvents', function () {
             return _timestamp;
         });
         timestamp += interval + interval;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: anotherTimestamp,
             repeatInterval: interval
         });
-        var r = timeEvents.next(elementsCount);
+        var r = eventTime.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, repeatInterval, next(16)', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var interval = ONE_HOUR;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var i;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: 123456
         });
         for (i = 0; i < 5; i++) {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp
             });
             testTimestamps.push(timestamp);
             timestamp += interval;
         }
         var _loop_1 = function () {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp,
                 repeatInterval: interval
             });
@@ -213,23 +213,23 @@ describe('TimeEvents', function () {
         testTimestamps = uniq(testTimestamps);
         testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
         testTimestamps.length = elementsCount;
-        var r = timeEvents.next(elementsCount);
+        var r = eventTime.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, repeatInterval, nextAfter(16)', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var interval = 2 * ONE_HOUR;
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var startTimestamp = timestamp + ONE_HOUR;
-        var addTimeEventsCount = 2;
+        var addEventTimesCount = 2;
         var testTimestamps = [];
         var i;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: 123456
         });
         var _loop_2 = function () {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: timestamp,
                 repeatInterval: interval
             });
@@ -242,10 +242,10 @@ describe('TimeEvents', function () {
             testTimestamps = testTimestamps.concat(_array);
             timestamp += 10000;
         };
-        for (i = 0; i < addTimeEventsCount; i++) {
+        for (i = 0; i < addEventTimesCount; i++) {
             _loop_2();
         }
-        var results = timeEvents.nextAfter(elementsCount, startTimestamp);
+        var results = eventTime.nextAfter(elementsCount, startTimestamp);
         testTimestamps = uniq(testTimestamps);
         testTimestamps = testTimestamps.filter(function (el) {
             return el > startTimestamp;
@@ -255,10 +255,10 @@ describe('TimeEvents', function () {
         chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
     });
     it('fromTimestamp, repeatInterval and repeatEvery (error)', function () {
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var hasError = false;
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatInterval: 1,
                 repeatEvery: {
@@ -272,11 +272,11 @@ describe('TimeEvents', function () {
         chai_1.expect(hasError).eql(true);
     });
     /*    it('fromTimestamp, repeatEvery daysOfWeek and daysOfMonth (not implemented)', () => {
-            const timeEvents: TimeEvents = new TimeEvents();
+            const eventTime: EventTime = new EventTime();
             let hasError: boolean = false;
     
             try {
-                timeEvents.addTimeEvent({
+                eventTime.addEventTime({
                     fromTimestamp: 123456,
                     repeatEvery: {
                         daysOfWeek: [0],
@@ -291,10 +291,10 @@ describe('TimeEvents', function () {
             expect(hasError).eql(true);
         });*/
     it('fromTimestamp, repeatEvery daysOfWeek (error)', function () {
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var hasError = false;
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatEvery: {
                     daysOfWeek: [24]
@@ -307,10 +307,10 @@ describe('TimeEvents', function () {
         chai_1.expect(hasError).eql(true);
     });
     it('fromTimestamp, repeatEvery daysOfWeek (error) 1', function () {
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var hasError = false;
         try {
-            timeEvents.addTimeEvent({
+            eventTime.addEventTime({
                 fromTimestamp: 123456,
                 repeatEvery: {
                     daysOfWeek: [4.000004]
@@ -325,16 +325,16 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatEvery daysOfWeek, tsDay === daysOfWeek[n], next(16)', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: [tsDay]
             }
         });
-        var results = timeEvents.next(elementsCount);
+        var results = eventTime.next(elementsCount);
         testTimestamps = Array(elementsCount).fill(0).map(function () {
             var _timestamp = timestamp;
             timestamp += ONE_WEEK;
@@ -348,20 +348,20 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatEvery daysOfWeek, tsDay < daysOfWeek[n], next(16)', function () {
         var timestamp = 1544516091479; // Tue Dec 11 2018 08:14:51 GMT+0000
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var currentTimestamp = new Date().getTime();
         if (currentTimestamp > timestamp)
             timestamp += Math.floor((currentTimestamp - timestamp) / ONE_WEEK) * ONE_WEEK;
         timestamp += 2 * ONE_WEEK;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: [4]
             }
         });
-        var results = timeEvents.next(elementsCount);
+        var results = eventTime.next(elementsCount);
         timestamp += 2 * ONE_DAY;
         testTimestamps = Array(elementsCount).fill(0).map(function () {
             var _timestamp = timestamp;
@@ -376,20 +376,20 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatEvery daysOfWeek, tsDay > daysOfWeek[n], next(16)', function () {
         var timestamp = 1544516091479 + 3 * ONE_DAY; // Thu Dec 13 2018 08:14:51 GMT + 3 * ONE_DAY
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var currentTimestamp = new Date().getTime();
         if (currentTimestamp > timestamp)
             timestamp += Math.floor((currentTimestamp - timestamp) / ONE_WEEK) * ONE_WEEK;
         timestamp += 2 * ONE_WEEK;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: [3]
             }
         });
-        var results = timeEvents.next(elementsCount);
+        var results = eventTime.next(elementsCount);
         // Fri: 5 (+0), Sat: 6 (+1), Sun: 0 (+2), Mon: 1 (+3), Thu: 2 (+4), Wed: 3 (+5)
         timestamp += 5 * ONE_DAY;
         testTimestamps = Array(elementsCount).fill(0).map(function () {
@@ -405,7 +405,7 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatEvery daysOfWeek, daysOfWeek[n, ...], next(16)', function () {
         var timestamp = 1544516091479 + ONE_DAY; // Thu Dec 13 2018 08:14:51 GMT + ONE_DAY
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var testDaysOfWeek = [1, 3, 6];
@@ -413,13 +413,13 @@ describe('TimeEvents', function () {
         if (currentTimestamp > timestamp)
             timestamp += Math.floor((currentTimestamp - timestamp) / ONE_WEEK) * ONE_WEEK;
         timestamp += 2 * ONE_WEEK;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
-        var results = timeEvents.next(elementsCount);
+        var results = eventTime.next(elementsCount);
         testDaysOfWeek.forEach(function (day) {
             var loopTimestamp = timestamp;
             var d = day - tsDay;
@@ -441,17 +441,17 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatEvery daysOfWeek, daysOfWeek[n, ...], next(16), few in the past', function () {
         var timestamp = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var testDaysOfWeek = [1, 2, 5];
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
-        var results = timeEvents.next(elementsCount);
+        var results = eventTime.next(elementsCount);
         testDaysOfWeek.forEach(function (day) {
             var loopTimestamp = timestamp;
             var d = day - tsDay;
@@ -477,18 +477,18 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatEvery daysOfWeek, daysOfWeek[n, ...], nextAfter(16), few in the past', function () {
         var timestamp = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var testDaysOfWeek = [1, 2, 5];
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
         var startTimestamp = new Date().getTime() + ONE_DAY;
-        var results = timeEvents.nextAfter(elementsCount, startTimestamp);
+        var results = eventTime.nextAfter(elementsCount, startTimestamp);
         testDaysOfWeek.forEach(function (day) {
             var loopTimestamp = timestamp;
             var d = day - tsDay;
@@ -513,18 +513,18 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatInterval, repeatEvery daysOfWeek, next(16)', function () {
         var timestamp = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var testDaysOfWeek = [1, 2, 5];
         var currentTimestamp = new Date().getTime();
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: currentTimestamp + 4 * ONE_HOUR,
         });
         testTimestamps = [currentTimestamp + 4 * ONE_HOUR];
         var loopTimestamp = currentTimestamp - ONE_HOUR;
         var loopRepeatInterval = 2 * ONE_HOUR;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: loopTimestamp,
             repeatInterval: loopRepeatInterval
         });
@@ -534,13 +534,13 @@ describe('TimeEvents', function () {
             return _timestamp;
         });
         testTimestamps = testTimestamps.concat(_array);
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
-        var results = timeEvents.next(elementsCount);
+        var results = eventTime.next(elementsCount);
         testDaysOfWeek.forEach(function (day) {
             var loopTimestamp = timestamp;
             var d = day - tsDay;
@@ -565,18 +565,18 @@ describe('TimeEvents', function () {
     it('fromTimestamp, repeatInterval, repeatEvery daysOfWeek, nextAfter(16)', function () {
         var timestamp = new Date().getTime() - ONE_WEEK - 8 * ONE_HOUR;
         var tsDay = new Date(timestamp).getDay();
-        var timeEvents = new timeEvents_1.TimeEvents();
+        var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
         var testTimestamps = [];
         var testDaysOfWeek = [2, 3];
         var startTimestamp = new Date().getTime() + 2 * ONE_HOUR;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: startTimestamp + 4 * ONE_HOUR,
         });
         testTimestamps = [startTimestamp + 4 * ONE_HOUR];
         var loopTimestamp = startTimestamp - ONE_HOUR;
         var loopRepeatInterval = 2 * ONE_HOUR;
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: loopTimestamp,
             repeatInterval: loopRepeatInterval
         });
@@ -586,13 +586,13 @@ describe('TimeEvents', function () {
             return _timestamp;
         });
         testTimestamps = testTimestamps.concat(_array);
-        timeEvents.addTimeEvent({
+        eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 daysOfWeek: testDaysOfWeek
             }
         });
-        var results = timeEvents.nextAfter(elementsCount, startTimestamp);
+        var results = eventTime.nextAfter(elementsCount, startTimestamp);
         testDaysOfWeek.forEach(function (day) {
             var loopTimestamp = timestamp;
             var d = day - tsDay;

@@ -1,17 +1,17 @@
-interface TimeEventObject {
+interface EventTimeObject {
     fromTimestamp: number;
     repeatInterval?: number;
     repeatEvery?: {
         daysOfWeek?: number[];
     };
 }
-export declare class TimeEvents {
+export declare class EventTime {
     readonly ONE_DAY: number;
     readonly ONE_WEEK: number;
-    private tEData;
+    private eTData;
     constructor();
     private _next;
-    addTimeEvent(tEObj: TimeEventObject): void;
+    addEventTime(eTObj: EventTimeObject): void;
     nextAfter(next: number, startTimestamp: number): number[];
     next(next?: number): number[];
 }
