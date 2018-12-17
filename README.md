@@ -5,6 +5,13 @@ A typescript (javascript) library which helps to calculate future timestamps
 for an event.
 
 
+## Install
+
+```
+npm install event-time
+```
+
+
 ## Usage
 
 ### JavaScript
@@ -27,7 +34,7 @@ eventTime.addEventTime({
 });
 
 // add repeat every Sunday (0), Monday (1), Wednesday (3) and Saturday (6)
-// after 1530000000000 in timestamp's time
+// after 1530000000000 at timestamp's time
 eventTime.addEventTime({
     fromTimestamp: 1530000000000,
     repeatEvery: {

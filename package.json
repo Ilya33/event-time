@@ -1,6 +1,6 @@
 {
   "name": "event-time",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "lib/eventTime.js",
   "types": "lib/eventTime.d.ts",
@@ -15,7 +15,11 @@
     "url": "git+https://github.com/Ilya33/event-time.git"
   },
   "keywords": [
-    "timestamp"
+    "timestamp",
+    "event",
+    "schedule",
+    "future",
+    "calculate"
   ],
   "author": "Ilya Pavlov <fsilux@gmail.com>",
   "license": "MIT",
