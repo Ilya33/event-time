@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import {expect} from 'chai'; // add chai date?
 import { EventTime } from '../lib/eventTime';
 
 
@@ -110,6 +110,37 @@ describe('EventTime', () => {
     });
 
 
+    it('fromTimestamp, next(16), unique', () => {
+        let timestamp: number = new Date().getTime() + ONE_WEEK;
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 16;
+        const testTimestamps: number[] = [
+            timestamp,
+            timestamp + 1024,
+            timestamp + 2048,
+        ];
+        let i: number;
+
+        for (i=0; i<8; i++) {
+            eventTime.addEventTime({
+                fromTimestamp: testTimestamps[0]
+            });
+
+            eventTime.addEventTime({
+                fromTimestamp: testTimestamps[1]
+            });
+
+            eventTime.addEventTime({
+                fromTimestamp:  testTimestamps[2]
+            });
+        }
+
+        const r: number[] = eventTime.next(elementsCount);
+
+        expect(r).to.be.an('array').that.eql(testTimestamps);
+    });
+
+
     it('fromTimestamp, next(16), add 16, 3 in the past', () => {
         let timestamp: number = new Date().getTime() - 2.5 * ONE_HOUR;
         const eventTime: EventTime = new EventTime();
@@ -171,6 +202,9 @@ describe('EventTime', () => {
 
         expect(hasError).eql(true);
     });
+
+
+    // TODO repeatInterval is float
 
 
     it('fromTimestamp (single), repeatInterval, next(16)', () => {
@@ -372,7 +406,7 @@ describe('EventTime', () => {
     });
 
 
-/*    it('fromTimestamp, repeatEvery daysOfWeek and daysOfMonth (not implemented)', () => {
+    it('fromTimestamp, repeatEvery daysOfWeek and months (not implemented)', () => {
         const eventTime: EventTime = new EventTime();
         let hasError: boolean = false;
 
@@ -381,7 +415,7 @@ describe('EventTime', () => {
                 fromTimestamp: 123456,
                 repeatEvery: {
                     daysOfWeek: [0],
-                    daysOfMonth: [2]
+                    months: 11
                 }
             });
         }
@@ -390,7 +424,7 @@ describe('EventTime', () => {
         }
 
         expect(hasError).eql(true);
-    });*/
+    });
 
 
     it('fromTimestamp, repeatEvery daysOfWeek (error)', () => {
@@ -832,4 +866,163 @@ describe('EventTime', () => {
 
         expect(results).to.be.an('array').that.eql(testTimestamps);
     });
+
+
+
+    it('dirty private _addMonths test', () => {
+        const eventTime: EventTime = new EventTime();
+        const dirtyPrivateMethod: any = eventTime['_addMonths'];
+
+
+        const date0 = new Date(2018, 0, 1);
+        const date0Timestamp = date0.getTime();
+
+        const expectedDates0: Date[] = [
+            new Date(2018, 0, 1), // +0
+            new Date(2018, 1, 1), // +1
+            new Date(2018, 2, 1), // +2
+            new Date(2018, 3, 1), // +3
+            new Date(2018, 4, 1), // +4
+            new Date(2018, 5, 1), // +5
+            new Date(2018, 11, 1), // +11
+            new Date(2019, 0, 1), // +12
+            new Date(2019, 1, 1), // +13
+            new Date(2020, 2, 1), // +26
+            new Date(2021, 3, 1), // +39
+            new Date(2022, 4, 1), // +52
+            new Date(2023, 5, 1), // +65
+        ];
+
+        let results0: Date[] = [];
+
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 0) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 1) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 2) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 3) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 4) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 5) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 11) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 12) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 13) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 26) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 39) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 52) );
+        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 65) );
+
+
+        const date1 = new Date(2018, 0, 31);
+        const date1Timestamp = date1.getTime();
+
+        const expectedDates1: Date[] = [
+            new Date(2018, 0, 31), // +0
+            new Date(2018, 1, 28), // +1
+            new Date(2018, 2, 31), // +2
+            new Date(2018, 3, 30), // +3
+            new Date(2019, 1, 28), // +13
+            new Date(2019, 2, 31), // +14
+            new Date(2019, 3, 30), // +15
+            new Date(2020, 1, 29), // +25
+            new Date(2021, 1, 28), // +37
+            new Date(2021, 2, 31), // +38
+        ];
+
+        let results1: Date[] = [];
+
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 0) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 1) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 2) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 3) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 13) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 14) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 15) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 25) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 37) );
+        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 38) );
+
+
+        const date2 = new Date(2018, 3, 30);
+        const date2Timestamp = date2.getTime();
+
+        const expectedDates2: Date[] = [
+            new Date(2018, 3, 30), // +0
+            new Date(2018, 4, 30), // +1
+            new Date(2018, 5, 30), // +2
+            new Date(2018, 6, 30), // +3
+            new Date(2019, 1, 28), // +10
+            new Date(2019, 2, 30), // +11
+            new Date(2019, 3, 30), // +12
+            new Date(2020, 1, 29), // +22
+            new Date(2021, 1, 28), // +34
+            new Date(2021, 2, 30), // +35
+        ];
+
+        let results2: Date[] = [];
+
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 0) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 1) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 2) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 3) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 10) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 11) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 12) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 22) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 34) );
+        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 35) );
+
+
+        expect( results0.map(el => el.getTime()) ).eql( expectedDates0.map(el => el.getTime()) );
+        expect( results1.map(el => el.getTime()) ).eql( expectedDates1.map(el => el.getTime()) );
+        expect( results2.map(el => el.getTime()) ).eql( expectedDates2.map(el => el.getTime()) );
+    });
+
+
+
+    it('fromTimestamp, repeatEvery months = 0, next(16)', () => {
+        let timestamp: number = new Date().getTime() + ONE_WEEK;
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 16;
+
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 0
+            }
+        });
+
+
+        const results: number[] = eventTime.next(elementsCount);
+
+        expect(results).to.be.an('array').that.eql([timestamp]);
+    });
+
+
+    /*it('fromTimestamp, repeatEvery months, next', () => {
+        let d = new Date();
+        let timestamp: number = (d.setFullYear(d.getFullYear() + 2, 0, 1)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 16;
+        let testTimestamps: number[] = [];
+
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+
+
+        const results: number[] = eventTime.next(elementsCount);
+
+        testTimestamps = (<any>Array(elementsCount)).fill(0).map(() => {
+            let _timestamp: number = timestamp;
+            timestamp += ONE_WEEK;
+            return _timestamp;
+        });
+
+        testTimestamps = uniq(testTimestamps);
+        testTimestamps.sort((a, b) => a > b ?1 :-1);
+        testTimestamps.length = elementsCount;
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });*/
 });

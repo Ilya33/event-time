@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai_1 = require("chai");
+var chai_1 = require("chai"); // add chai date?
 var eventTime_1 = require("../lib/eventTime");
 describe('EventTime', function () {
     var ONE_HOUR = 3600000;
@@ -73,6 +73,30 @@ describe('EventTime', function () {
         var r = eventTime.next(elementsCount);
         chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
     });
+    it('fromTimestamp, next(16), unique', function () {
+        var timestamp = new Date().getTime() + ONE_WEEK;
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 16;
+        var testTimestamps = [
+            timestamp,
+            timestamp + 1024,
+            timestamp + 2048,
+        ];
+        var i;
+        for (i = 0; i < 8; i++) {
+            eventTime.addEventTime({
+                fromTimestamp: testTimestamps[0]
+            });
+            eventTime.addEventTime({
+                fromTimestamp: testTimestamps[1]
+            });
+            eventTime.addEventTime({
+                fromTimestamp: testTimestamps[2]
+            });
+        }
+        var r = eventTime.next(elementsCount);
+        chai_1.expect(r).to.be.an('array').that.eql(testTimestamps);
+    });
     it('fromTimestamp, next(16), add 16, 3 in the past', function () {
         var timestamp = new Date().getTime() - 2.5 * ONE_HOUR;
         var eventTime = new eventTime_1.EventTime();
@@ -118,6 +142,7 @@ describe('EventTime', function () {
         }
         chai_1.expect(hasError).eql(true);
     });
+    // TODO repeatInterval is float
     it('fromTimestamp (single), repeatInterval, next(16)', function () {
         var timestamp = new Date().getTime() + ONE_WEEK;
         var interval = ONE_HOUR;
@@ -271,25 +296,23 @@ describe('EventTime', function () {
         }
         chai_1.expect(hasError).eql(true);
     });
-    /*    it('fromTimestamp, repeatEvery daysOfWeek and daysOfMonth (not implemented)', () => {
-            const eventTime: EventTime = new EventTime();
-            let hasError: boolean = false;
-    
-            try {
-                eventTime.addEventTime({
-                    fromTimestamp: 123456,
-                    repeatEvery: {
-                        daysOfWeek: [0],
-                        daysOfMonth: [2]
-                    }
-                });
-            }
-            catch(e) {
-                hasError = true;
-            }
-    
-            expect(hasError).eql(true);
-        });*/
+    it('fromTimestamp, repeatEvery daysOfWeek and months (not implemented)', function () {
+        var eventTime = new eventTime_1.EventTime();
+        var hasError = false;
+        try {
+            eventTime.addEventTime({
+                fromTimestamp: 123456,
+                repeatEvery: {
+                    daysOfWeek: [0],
+                    months: 11
+                }
+            });
+        }
+        catch (e) {
+            hasError = true;
+        }
+        chai_1.expect(hasError).eql(true);
+    });
     it('fromTimestamp, repeatEvery daysOfWeek (error)', function () {
         var eventTime = new eventTime_1.EventTime();
         var hasError = false;
@@ -614,4 +637,134 @@ describe('EventTime', function () {
         testTimestamps.length = elementsCount;
         chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
     });
+    it('dirty private _addMonths test', function () {
+        var eventTime = new eventTime_1.EventTime();
+        var dirtyPrivateMethod = eventTime['_addMonths'];
+        var date0 = new Date(2018, 0, 1);
+        var date0Timestamp = date0.getTime();
+        var expectedDates0 = [
+            new Date(2018, 0, 1),
+            new Date(2018, 1, 1),
+            new Date(2018, 2, 1),
+            new Date(2018, 3, 1),
+            new Date(2018, 4, 1),
+            new Date(2018, 5, 1),
+            new Date(2018, 11, 1),
+            new Date(2019, 0, 1),
+            new Date(2019, 1, 1),
+            new Date(2020, 2, 1),
+            new Date(2021, 3, 1),
+            new Date(2022, 4, 1),
+            new Date(2023, 5, 1),
+        ];
+        var results0 = [];
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 0));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 1));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 2));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 3));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 4));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 5));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 11));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 12));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 13));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 26));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 39));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 52));
+        results0.push(dirtyPrivateMethod(new Date(date0Timestamp), 65));
+        var date1 = new Date(2018, 0, 31);
+        var date1Timestamp = date1.getTime();
+        var expectedDates1 = [
+            new Date(2018, 0, 31),
+            new Date(2018, 1, 28),
+            new Date(2018, 2, 31),
+            new Date(2018, 3, 30),
+            new Date(2019, 1, 28),
+            new Date(2019, 2, 31),
+            new Date(2019, 3, 30),
+            new Date(2020, 1, 29),
+            new Date(2021, 1, 28),
+            new Date(2021, 2, 31),
+        ];
+        var results1 = [];
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 0));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 1));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 2));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 3));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 13));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 14));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 15));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 25));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 37));
+        results1.push(dirtyPrivateMethod(new Date(date1Timestamp), 38));
+        var date2 = new Date(2018, 3, 30);
+        var date2Timestamp = date2.getTime();
+        var expectedDates2 = [
+            new Date(2018, 3, 30),
+            new Date(2018, 4, 30),
+            new Date(2018, 5, 30),
+            new Date(2018, 6, 30),
+            new Date(2019, 1, 28),
+            new Date(2019, 2, 30),
+            new Date(2019, 3, 30),
+            new Date(2020, 1, 29),
+            new Date(2021, 1, 28),
+            new Date(2021, 2, 30),
+        ];
+        var results2 = [];
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 0));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 1));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 2));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 3));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 10));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 11));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 12));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 22));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 34));
+        results2.push(dirtyPrivateMethod(new Date(date2Timestamp), 35));
+        chai_1.expect(results0.map(function (el) { return el.getTime(); })).eql(expectedDates0.map(function (el) { return el.getTime(); }));
+        chai_1.expect(results1.map(function (el) { return el.getTime(); })).eql(expectedDates1.map(function (el) { return el.getTime(); }));
+        chai_1.expect(results2.map(function (el) { return el.getTime(); })).eql(expectedDates2.map(function (el) { return el.getTime(); }));
+    });
+    it('fromTimestamp, repeatEvery months = 0, next(16)', function () {
+        var timestamp = new Date().getTime() + ONE_WEEK;
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 16;
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 0
+            }
+        });
+        var results = eventTime.next(elementsCount);
+        chai_1.expect(results).to.be.an('array').that.eql([timestamp]);
+    });
+    /*it('fromTimestamp, repeatEvery months, next', () => {
+        let d = new Date();
+        let timestamp: number = (d.setFullYear(d.getFullYear() + 2, 0, 1)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 16;
+        let testTimestamps: number[] = [];
+
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+
+
+        const results: number[] = eventTime.next(elementsCount);
+
+        testTimestamps = (<any>Array(elementsCount)).fill(0).map(() => {
+            let _timestamp: number = timestamp;
+            timestamp += ONE_WEEK;
+            return _timestamp;
+        });
+
+        testTimestamps = uniq(testTimestamps);
+        testTimestamps.sort((a, b) => a > b ?1 :-1);
+        testTimestamps.length = elementsCount;
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });*/
 });
