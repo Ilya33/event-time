@@ -42,6 +42,15 @@ eventTime.addEventTime({
     }
 });
 
+// add repeat every 10 months in current time zone
+// after 1530000000000 at timestamp's time
+eventTime.addEventTime({
+    fromTimestamp: 1530000000000,
+    repeatEvery: {
+        months: 10
+    }
+});
+
 
 // get 8 timestamps after new Date().getTime()
 const results0 = eventTime.next(8);
