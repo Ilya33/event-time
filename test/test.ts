@@ -1,4 +1,5 @@
-import {expect} from 'chai'; // add chai date?
+import {expect} from 'chai';
+// TODO chai-datetime
 import { EventTime } from '../lib/eventTime';
 
 
@@ -7,6 +8,8 @@ describe('EventTime', () => {
     const ONE_HOUR: number = 3600000;
     const ONE_DAY: number  = 86400000;
     const ONE_WEEK: number = 604800000;
+
+    const DAYS_IN_MONTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 
 
@@ -996,9 +999,28 @@ describe('EventTime', () => {
     });
 
 
-    /*it('fromTimestamp, repeatEvery months, next', () => {
+    it('fromTimestamp, repeatEvery months, next > now', () => {
         let d = new Date();
-        let timestamp: number = (d.setFullYear(d.getFullYear() + 2, 0, 1)).getTime();
+        let testYear: number = d.getFullYear();
+        let testMonth: number = d.getMonth();
+        let testDay: number;
+
+        if (d.getDate() >= 10) {
+            testDay = 8;
+
+            if (11 == testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+        }
+        else {
+            testDay = 16;
+        }
+
+        let timestamp: number = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
         const eventTime: EventTime = new EventTime();
         const elementsCount: number = 16;
         let testTimestamps: number[] = [];
@@ -1010,19 +1032,335 @@ describe('EventTime', () => {
             }
         });
 
+        const results: number[] = eventTime.next(elementsCount);
+
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+
+        let i: number;
+        for (i=1; i<elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+
+
+    it('fromTimestamp, repeatEvery months, next >>> now', () => {
+        let d = new Date();
+        let testYear: number = d.getFullYear() + 2;
+        let testMonth: number = 4;
+        let testDay: number = 8;
+
+        let timestamp: number = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 16;
+        let testTimestamps: number[] = [];
+
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
 
         const results: number[] = eventTime.next(elementsCount);
 
-        testTimestamps = (<any>Array(elementsCount)).fill(0).map(() => {
-            let _timestamp: number = timestamp;
-            timestamp += ONE_WEEK;
-            return _timestamp;
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+
+        let i: number;
+        for (i=1; i<elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+
+
+    it('fromTimestamp, repeatEvery months, next <<< now', () => {
+        let d = new Date();
+        const currentTimestamp = d.getTime();
+        let testYear: number = d.getFullYear() - 1;
+        let testMonth: number = d.getMonth();
+        let testDay: number = (d.getDate() >= 10) ?8 :16;
+
+        let timestamp: number = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 16;
+        let testTimestamps: number[] = [];
+
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
         });
 
+        const results: number[] = eventTime.next(elementsCount);
+
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+
+        let i: number;
+        let l: number = elementsCount + 24;
+        for (i=1; i<l; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+
         testTimestamps = uniq(testTimestamps);
+
+        testTimestamps = testTimestamps.filter((el) => {
+            return el > currentTimestamp;
+        });
+
         testTimestamps.sort((a, b) => a > b ?1 :-1);
         testTimestamps.length = elementsCount;
 
+
         expect(results).to.be.an('array').that.eql(testTimestamps);
-    });*/
+    });
+
+
+    it('fromTimestamp, repeatEvery months, day = 01, next', () => {
+        let d = new Date();
+        let testYear: number = d.getFullYear() + 1;
+        let testMonth: number = 4;
+        let testDay: number = 1;
+
+        let timestamp: number = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 16;
+        let testTimestamps: number[] = [];
+
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+
+        const results: number[] = eventTime.next(elementsCount);
+
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+
+        let i: number;
+        for (i=1; i<elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+
+
+    it('fromTimestamp, repeatEvery months, day = 31, next', () => {
+        let d = new Date();
+        let testYear: number = d.getFullYear() + 1;
+        let testMonth: number = 0;
+        let testDay: number = 31;
+
+        let timestamp: number = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 12 * 4; // for 4 years
+        let testTimestamps: number[] = [];
+
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+
+        const results: number[] = eventTime.next(elementsCount);
+
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+
+        let i: number;
+        for (i=1; i<elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+
+            let _testDay: number = DAYS_IN_MONTHS[testMonth];
+            if (1 == testMonth && (((testYear % 4 === 0) && (testYear % 100 !== 0)) || (testYear % 400 === 0)))
+                _testDay = 29;
+
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, _testDay)).getTime();
+        }
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+
+
+    it('fromTimestamp, repeatEvery months 2..n, next', () => {
+        const d = new Date();
+        const currentTimestamp = d.getTime();
+        const testYear: number = d.getFullYear() - 1;
+        const testMonth: number = d.getMonth();
+        const testDay: number = (d.getDate() >= 10) ?8 :16;
+        const repeatEveryMonths = [2, 3, 4, 5, 15, 27];
+
+        let timestamp: number = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 64;
+        let testTimestamps: number[] = [];
+
+
+        repeatEveryMonths.forEach((months) => {
+            eventTime.addEventTime({
+                fromTimestamp: timestamp,
+                repeatEvery: {
+                    months
+                }
+            });
+        });
+
+        const results: number[] = eventTime.next(elementsCount);
+
+
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+
+        repeatEveryMonths.forEach((months) => {
+            let i: number;
+            let l: number = elementsCount + 24;
+            let _testMonth = testMonth;
+            let _testYear = testYear;
+
+            for (i=1; i<l; i++) {
+                const allMonths: number = _testMonth + months;
+                const needAddYears: number = Math.floor(allMonths / 12);
+
+                _testMonth = allMonths - needAddYears * 12;
+                _testYear += needAddYears;
+
+                testTimestamps.push( new Date(d.setFullYear(_testYear, _testMonth, testDay)).getTime() );
+            }
+        });
+
+        testTimestamps = uniq(testTimestamps);
+
+        testTimestamps = testTimestamps.filter((el) => {
+            return el > currentTimestamp;
+        });
+
+        testTimestamps.sort((a, b) => a > b ?1 :-1);
+        testTimestamps.length = elementsCount;
+
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+
+
+    it('mix fromTimestamp, repeatEvery months, repeatInterval, nextAfter', () => {
+        const d = new Date();
+        const startTimestamp = d.getTime() + ONE_WEEK;
+        const testYear: number = d.getFullYear() - 1;
+        const testMonth: number = d.getMonth();
+        const testDay: number = d.getDate();
+        const repeatEveryMonths = [2, 3, 4, 5, 15, 27];
+
+        const timestamp: number = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        const eventTime: EventTime = new EventTime();
+        const elementsCount: number = 64;
+        let testTimestamps: number[] = [];
+
+
+        eventTime.addEventTime({
+            fromTimestamp: d.getTime()
+        });
+
+        eventTime.addEventTime({
+            fromTimestamp: d.getTime() + ONE_WEEK * 2
+        });
+        testTimestamps.push( d.getTime() + ONE_WEEK * 2 );
+
+
+        const interval: number = ONE_WEEK * 17; // ~ 4 months
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatInterval: interval
+        });
+        let timestampCopy = timestamp;
+        let _array: number[] = (<any>Array(elementsCount * 2)).fill(0).map(() => {
+            let _timestamp: number = timestampCopy;
+            timestampCopy += interval;
+            return _timestamp;
+        });
+        testTimestamps = [...testTimestamps, ..._array];
+
+
+        repeatEveryMonths.forEach((months) => {
+            eventTime.addEventTime({
+                fromTimestamp: timestamp,
+                repeatEvery: {
+                    months
+                }
+            });
+        });
+
+        const results: number[] = eventTime.nextAfter(elementsCount, startTimestamp);
+
+
+        repeatEveryMonths.forEach((months) => {
+            let i: number;
+            let l: number = elementsCount + 24;
+            let _testMonth = testMonth;
+            let _testYear = testYear;
+
+            for (i=1; i<l; i++) {
+                const allMonths: number = _testMonth + months;
+                const needAddYears: number = Math.floor(allMonths / 12);
+
+                _testMonth = allMonths - needAddYears * 12;
+                _testYear += needAddYears;
+
+                testTimestamps.push( new Date(d.setFullYear(_testYear, _testMonth, testDay)).getTime() );
+            }
+        });
+
+        testTimestamps = uniq(testTimestamps);
+
+        testTimestamps = testTimestamps.filter((el) => {
+            return el > startTimestamp;
+        });
+
+        testTimestamps.sort((a, b) => a > b ?1 :-1);
+        testTimestamps.length = elementsCount;
+
+
+        expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
 });

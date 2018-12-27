@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai_1 = require("chai"); // add chai date?
+var chai_1 = require("chai");
+// TODO chai-datetime
 var eventTime_1 = require("../lib/eventTime");
 describe('EventTime', function () {
     var ONE_HOUR = 3600000;
     var ONE_DAY = 86400000;
     var ONE_WEEK = 604800000;
+    var DAYS_IN_MONTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     var uniq = function (a) {
         var obj = Object.create(null);
         var i;
@@ -738,33 +740,280 @@ describe('EventTime', function () {
         var results = eventTime.next(elementsCount);
         chai_1.expect(results).to.be.an('array').that.eql([timestamp]);
     });
-    /*it('fromTimestamp, repeatEvery months, next', () => {
-        let d = new Date();
-        let timestamp: number = (d.setFullYear(d.getFullYear() + 2, 0, 1)).getTime();
-        const eventTime: EventTime = new EventTime();
-        const elementsCount: number = 16;
-        let testTimestamps: number[] = [];
-
+    it('fromTimestamp, repeatEvery months, next > now', function () {
+        var d = new Date();
+        var testYear = d.getFullYear();
+        var testMonth = d.getMonth();
+        var testDay;
+        if (d.getDate() >= 10) {
+            testDay = 8;
+            if (11 == testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+        }
+        else {
+            testDay = 16;
+        }
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 16;
+        var testTimestamps = [];
         eventTime.addEventTime({
             fromTimestamp: timestamp,
             repeatEvery: {
                 months: 1
             }
         });
-
-
-        const results: number[] = eventTime.next(elementsCount);
-
-        testTimestamps = (<any>Array(elementsCount)).fill(0).map(() => {
-            let _timestamp: number = timestamp;
-            timestamp += ONE_WEEK;
+        var results = eventTime.next(elementsCount);
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var i;
+        for (i = 1; i < elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatEvery months, next >>> now', function () {
+        var d = new Date();
+        var testYear = d.getFullYear() + 2;
+        var testMonth = 4;
+        var testDay = 8;
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 16;
+        var testTimestamps = [];
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+        var results = eventTime.next(elementsCount);
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var i;
+        for (i = 1; i < elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatEvery months, next <<< now', function () {
+        var d = new Date();
+        var currentTimestamp = d.getTime();
+        var testYear = d.getFullYear() - 1;
+        var testMonth = d.getMonth();
+        var testDay = (d.getDate() >= 10) ? 8 : 16;
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 16;
+        var testTimestamps = [];
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+        var results = eventTime.next(elementsCount);
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var i;
+        var l = elementsCount + 24;
+        for (i = 1; i < l; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+        testTimestamps = uniq(testTimestamps);
+        testTimestamps = testTimestamps.filter(function (el) {
+            return el > currentTimestamp;
+        });
+        testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
+        testTimestamps.length = elementsCount;
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatEvery months, day = 01, next', function () {
+        var d = new Date();
+        var testYear = d.getFullYear() + 1;
+        var testMonth = 4;
+        var testDay = 1;
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 16;
+        var testTimestamps = [];
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+        var results = eventTime.next(elementsCount);
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var i;
+        for (i = 1; i < elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatEvery months, day = 31, next', function () {
+        var d = new Date();
+        var testYear = d.getFullYear() + 1;
+        var testMonth = 0;
+        var testDay = 31;
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 12 * 4; // for 4 years
+        var testTimestamps = [];
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+        var results = eventTime.next(elementsCount);
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var i;
+        for (i = 1; i < elementsCount; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+            var _testDay = DAYS_IN_MONTHS[testMonth];
+            if (1 == testMonth && (((testYear % 4 === 0) && (testYear % 100 !== 0)) || (testYear % 400 === 0)))
+                _testDay = 29;
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, _testDay)).getTime();
+        }
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatEvery months 2..n, next', function () {
+        var d = new Date();
+        var currentTimestamp = d.getTime();
+        var testYear = d.getFullYear() - 1;
+        var testMonth = d.getMonth();
+        var testDay = (d.getDate() >= 10) ? 8 : 16;
+        var repeatEveryMonths = [2, 3, 4, 5, 15, 27];
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 64;
+        var testTimestamps = [];
+        repeatEveryMonths.forEach(function (months) {
+            eventTime.addEventTime({
+                fromTimestamp: timestamp,
+                repeatEvery: {
+                    months: months
+                }
+            });
+        });
+        var results = eventTime.next(elementsCount);
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        repeatEveryMonths.forEach(function (months) {
+            var i;
+            var l = elementsCount + 24;
+            var _testMonth = testMonth;
+            var _testYear = testYear;
+            for (i = 1; i < l; i++) {
+                var allMonths = _testMonth + months;
+                var needAddYears = Math.floor(allMonths / 12);
+                _testMonth = allMonths - needAddYears * 12;
+                _testYear += needAddYears;
+                testTimestamps.push(new Date(d.setFullYear(_testYear, _testMonth, testDay)).getTime());
+            }
+        });
+        testTimestamps = uniq(testTimestamps);
+        testTimestamps = testTimestamps.filter(function (el) {
+            return el > currentTimestamp;
+        });
+        testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
+        testTimestamps.length = elementsCount;
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('mix fromTimestamp, repeatEvery months, repeatInterval, nextAfter', function () {
+        var d = new Date();
+        var startTimestamp = d.getTime() + ONE_WEEK;
+        var testYear = d.getFullYear() - 1;
+        var testMonth = d.getMonth();
+        var testDay = d.getDate();
+        var repeatEveryMonths = [2, 3, 4, 5, 15, 27];
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 64;
+        var testTimestamps = [];
+        eventTime.addEventTime({
+            fromTimestamp: d.getTime()
+        });
+        eventTime.addEventTime({
+            fromTimestamp: d.getTime() + ONE_WEEK * 2
+        });
+        testTimestamps.push(d.getTime() + ONE_WEEK * 2);
+        var interval = ONE_WEEK * 17; // ~ 4 months
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatInterval: interval
+        });
+        var timestampCopy = timestamp;
+        var _array = Array(elementsCount * 2).fill(0).map(function () {
+            var _timestamp = timestampCopy;
+            timestampCopy += interval;
             return _timestamp;
         });
-
+        testTimestamps = testTimestamps.concat(_array);
+        repeatEveryMonths.forEach(function (months) {
+            eventTime.addEventTime({
+                fromTimestamp: timestamp,
+                repeatEvery: {
+                    months: months
+                }
+            });
+        });
+        var results = eventTime.nextAfter(elementsCount, startTimestamp);
+        repeatEveryMonths.forEach(function (months) {
+            var i;
+            var l = elementsCount + 24;
+            var _testMonth = testMonth;
+            var _testYear = testYear;
+            for (i = 1; i < l; i++) {
+                var allMonths = _testMonth + months;
+                var needAddYears = Math.floor(allMonths / 12);
+                _testMonth = allMonths - needAddYears * 12;
+                _testYear += needAddYears;
+                testTimestamps.push(new Date(d.setFullYear(_testYear, _testMonth, testDay)).getTime());
+            }
+        });
         testTimestamps = uniq(testTimestamps);
-        testTimestamps.sort((a, b) => a > b ?1 :-1);
+        testTimestamps = testTimestamps.filter(function (el) {
+            return el > startTimestamp;
+        });
+        testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
         testTimestamps.length = elementsCount;
-
-        expect(results).to.be.an('array').that.eql(testTimestamps);
-    });*/
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
 });

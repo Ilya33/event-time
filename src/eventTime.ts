@@ -28,7 +28,7 @@ const uniq = (a: any[]): any[] => {
     let i: number;
     let l: number = a.length;
 
-    for (i=0; i<l; i++)
+    for (i=0; i<l; ++i)
         obj[ a[i] ] = a[i];
 
     // ES-2017 Object.values
@@ -76,7 +76,7 @@ export class EventTime {
             else {
                 const year = dateObj.getFullYear() + needAddYears;
                 // TODO new Date(year, 1, 29).getDate() === 29; http://javascript-benchmark.info/
-                if ( ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0) )
+                if ( ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0) )
                     dayValue = 29;
                 else
                     dayValue = 28;
@@ -96,10 +96,10 @@ export class EventTime {
         let eTDIndex: number;
         let eTDLength: number = eTData.length;
 
-        for (eTDIndex=0; eTDIndex<eTDLength; eTDIndex++) {
+        for (eTDIndex=0; eTDIndex<eTDLength; ++eTDIndex) {
             const eventTime: EventTimeData = eTData[eTDIndex];
 
-            if (1 === (eventTime._repeatFlags&this.RF_HAS_REPEAT_INTERVAL)) {
+            if (0 !== (eventTime._repeatFlags & this.RF_HAS_REPEAT_INTERVAL)) {
                 const repeatInterval = eventTime.repeatInterval;
                 let timestamp: number = eventTime.timestamp;
 
@@ -111,33 +111,33 @@ export class EventTime {
                 nextTSs.push(timestamp);
 
                 let i: number;
-                for (i=1; i<next; i++) {
+                for (i=1; i<next; ++i) {
                     timestamp += repeatInterval;
                     nextTSs.push(timestamp);
                 }
             }
 
 
-            else if (1 === (eventTime._repeatFlags&this.RF_REPEAT_EVERY_MONTHS)) {
+            else if (0 !== (eventTime._repeatFlags & this.RF_REPEAT_EVERY_MONTHS)) {
                 const monthsInterval = eventTime.repeatInterval;
                 let timestamp: number = eventTime.timestamp;
 
-                if (eventTime.timestamp <= startTimestamp) {
+                if (timestamp <= startTimestamp) {
                     const startTimestampDate = new Date(startTimestamp);
-                    const eventTimestampDate = new Date(eventTime.timestamp);
+                    const eventTimestampDate = new Date(timestamp);
                     const currentMonthsDelta = (startTimestampDate.getFullYear() - eventTimestampDate.getFullYear()) * 12 -
                         eventTimestampDate.getMonth() + startTimestampDate.getMonth();
-                    const needMonths = Math.floor(currentMonthsDelta / monthsInterval) + 1;
+                    const needMonths = (Math.floor(currentMonthsDelta / monthsInterval) + 1) * monthsInterval;
 
                     timestamp = this._addMonths(new Date(timestamp), needMonths).getTime();
                 }
 
                 nextTSs.push(timestamp);
 
+                let interval: number = monthsInterval;
                 let i: number;
-                for (i=1; i<next; i++) {
-                    timestamp += this._addMonths(new Date(timestamp), monthsInterval).getTime();
-                    nextTSs.push(timestamp);
+                for (i=1; i<next; ++i, interval += monthsInterval) {
+                    nextTSs.push( this._addMonths(new Date(timestamp), interval).getTime() );
                 }
             }
 
@@ -207,7 +207,7 @@ export class EventTime {
                     throw new Error('`daysOfWeek` MUST ba an array with days of week numbers 0-6: days since Sunday');
 
                 const tsDay = new Date(eTObj.fromTimestamp).getDay();
-                for (i=0; i<l; i++) {
+                for (i=0; i<l; ++i) {
                     let d = days[i] - tsDay;
 
                     if (d < 0)
