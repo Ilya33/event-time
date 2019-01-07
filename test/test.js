@@ -813,12 +813,12 @@ describe('EventTime', function () {
         }
         chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
     });
-    it('fromTimestamp, repeatEvery months, next <<< now', function () {
+    it('fromTimestamp, repeatEvery months, next <<< now, beginning of the month', function () {
         var d = new Date();
         var currentTimestamp = d.getTime();
         var testYear = d.getFullYear() - 1;
         var testMonth = d.getMonth();
-        var testDay = (d.getDate() >= 10) ? 8 : 16;
+        var testDay = 1;
         var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
         var eventTime = new eventTime_1.EventTime();
         var elementsCount = 16;
@@ -842,6 +842,46 @@ describe('EventTime', function () {
                 ++testMonth;
             }
             testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        }
+        testTimestamps = uniq(testTimestamps);
+        testTimestamps = testTimestamps.filter(function (el) {
+            return el > currentTimestamp;
+        });
+        testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
+        testTimestamps.length = elementsCount;
+        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
+    });
+    it('fromTimestamp, repeatEvery months, next <<< now, end of the month', function () {
+        var d = new Date();
+        var currentTimestamp = d.getTime();
+        var testYear = d.getFullYear() - 1;
+        var testMonth = d.getMonth();
+        var testDay = 28; //DAYS_IN_MONTHS[testMonth];
+        //if (1 == testMonth && (((testYear % 4 === 0) && (testYear % 100 !== 0)) || (testYear % 400 === 0)))
+        //    testDay = 29;
+        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
+        var eventTime = new eventTime_1.EventTime();
+        var elementsCount = 16;
+        var testTimestamps = [];
+        eventTime.addEventTime({
+            fromTimestamp: timestamp,
+            repeatEvery: {
+                months: 1
+            }
+        });
+        var results = eventTime.next(elementsCount);
+        testTimestamps[0] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime(); //
+        var i;
+        var l = elementsCount + 24;
+        for (i = 1; i < l; i++) {
+            if (11 === testMonth) {
+                testMonth = 0;
+                ++testYear;
+            }
+            else {
+                ++testMonth;
+            }
+            testTimestamps[i] = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime(); //
         }
         testTimestamps = uniq(testTimestamps);
         testTimestamps = testTimestamps.filter(function (el) {
@@ -951,66 +991,6 @@ describe('EventTime', function () {
         testTimestamps = uniq(testTimestamps);
         testTimestamps = testTimestamps.filter(function (el) {
             return el > currentTimestamp;
-        });
-        testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
-        testTimestamps.length = elementsCount;
-        chai_1.expect(results).to.be.an('array').that.eql(testTimestamps);
-    });
-    it('mix fromTimestamp, repeatEvery months, repeatInterval, nextAfter', function () {
-        var d = new Date();
-        var startTimestamp = d.getTime() + ONE_WEEK;
-        var testYear = d.getFullYear() - 1;
-        var testMonth = d.getMonth();
-        var testDay = d.getDate();
-        var repeatEveryMonths = [2, 3, 4, 5, 15, 27];
-        var timestamp = new Date(d.setFullYear(testYear, testMonth, testDay)).getTime();
-        var eventTime = new eventTime_1.EventTime();
-        var elementsCount = 64;
-        var testTimestamps = [];
-        eventTime.addEventTime({
-            fromTimestamp: d.getTime()
-        });
-        eventTime.addEventTime({
-            fromTimestamp: d.getTime() + ONE_WEEK * 2
-        });
-        testTimestamps.push(d.getTime() + ONE_WEEK * 2);
-        var interval = ONE_WEEK * 17; // ~ 4 months
-        eventTime.addEventTime({
-            fromTimestamp: timestamp,
-            repeatInterval: interval
-        });
-        var timestampCopy = timestamp;
-        var _array = Array(elementsCount * 2).fill(0).map(function () {
-            var _timestamp = timestampCopy;
-            timestampCopy += interval;
-            return _timestamp;
-        });
-        testTimestamps = testTimestamps.concat(_array);
-        repeatEveryMonths.forEach(function (months) {
-            eventTime.addEventTime({
-                fromTimestamp: timestamp,
-                repeatEvery: {
-                    months: months
-                }
-            });
-        });
-        var results = eventTime.nextAfter(elementsCount, startTimestamp);
-        repeatEveryMonths.forEach(function (months) {
-            var i;
-            var l = elementsCount + 24;
-            var _testMonth = testMonth;
-            var _testYear = testYear;
-            for (i = 1; i < l; i++) {
-                var allMonths = _testMonth + months;
-                var needAddYears = Math.floor(allMonths / 12);
-                _testMonth = allMonths - needAddYears * 12;
-                _testYear += needAddYears;
-                testTimestamps.push(new Date(d.setFullYear(_testYear, _testMonth, testDay)).getTime());
-            }
-        });
-        testTimestamps = uniq(testTimestamps);
-        testTimestamps = testTimestamps.filter(function (el) {
-            return el > startTimestamp;
         });
         testTimestamps.sort(function (a, b) { return a > b ? 1 : -1; });
         testTimestamps.length = elementsCount;

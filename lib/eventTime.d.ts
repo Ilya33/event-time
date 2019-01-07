@@ -7,6 +7,8 @@ interface EventTimeObject {
     };
 }
 export declare class EventTime {
+    readonly ONE_SECOND: number;
+    readonly ONE_MINUTE: number;
     readonly ONE_HOUR: number;
     readonly ONE_DAY: number;
     readonly ONE_WEEK: number;
@@ -15,7 +17,7 @@ export declare class EventTime {
     readonly RF_REPEAT_EVERY_MONTHS: number;
     private eTData;
     constructor();
-    private _addMonths;
+    protected _addMonths(dateObj: Date, months: number): Date;
     private _next;
     addEventTime(eTObj: EventTimeObject): void;
     nextAfter(next: number, startTimestamp: number): number[];

@@ -1,4 +1,4 @@
-// event-time - Copyright (C) 2018 Ilya Pavlov
+// event-time - Copyright (C) 2018-2019 Ilya Pavlov
 // event-time is licensed under the MIT License
 
 interface EventTimeObject {
@@ -40,9 +40,11 @@ const uniq = (a: any[]): any[] => {
 
 
 export class EventTime {
-    readonly ONE_HOUR = 3600000;
-    readonly ONE_DAY  = 86400000;
-    readonly ONE_WEEK = 604800000;
+    readonly ONE_SECOND = 1000;
+    readonly ONE_MINUTE = 60000;
+    readonly ONE_HOUR   = 3600000;
+    readonly ONE_DAY    = 86400000;
+    readonly ONE_WEEK   = 604800000;
 
     readonly RF_NONE                = 0;
     readonly RF_HAS_REPEAT_INTERVAL = 1;
@@ -58,9 +60,9 @@ export class EventTime {
 
 
 
-    private _addMonths(dateObj: Date, months: number): Date {
+    protected _addMonths(dateObj: Date, months: number): Date {
         if (0 === months)
-            return new Date(dateObj);
+            return dateObj;
 
         const mDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
@@ -104,8 +106,7 @@ export class EventTime {
                 let timestamp: number = eventTime.timestamp;
 
                 if (timestamp <= startTimestamp)
-                    timestamp = timestamp +
-                        Math.floor((startTimestamp - timestamp) / repeatInterval) *
+                    timestamp += Math.floor((startTimestamp - timestamp) / repeatInterval) *
                         repeatInterval + repeatInterval;
 
                 nextTSs.push(timestamp);
@@ -121,23 +122,28 @@ export class EventTime {
             else if (0 !== (eventTime._repeatFlags & this.RF_REPEAT_EVERY_MONTHS)) {
                 const monthsInterval = eventTime.repeatInterval;
                 let timestamp: number = eventTime.timestamp;
+                let currentInterval: number = 0;
 
                 if (timestamp <= startTimestamp) {
-                    const startTimestampDate = new Date(startTimestamp);
-                    const eventTimestampDate = new Date(timestamp);
-                    const currentMonthsDelta = (startTimestampDate.getFullYear() - eventTimestampDate.getFullYear()) * 12 -
+                    let startTimestampDate = new Date(startTimestamp);
+                    let eventTimestampDate = new Date(timestamp);
+                    let currentMonthsDelta = (startTimestampDate.getFullYear() - eventTimestampDate.getFullYear()) * 12 -
                         eventTimestampDate.getMonth() + startTimestampDate.getMonth();
-                    const needMonths = (Math.floor(currentMonthsDelta / monthsInterval) + 1) * monthsInterval;
 
-                    timestamp = this._addMonths(new Date(timestamp), needMonths).getTime();
+                    currentInterval = Math.ceil(currentMonthsDelta / monthsInterval) * monthsInterval;
+
+                    let _timestamp = this._addMonths(new Date(timestamp), currentInterval).getTime();
+
+                    if (_timestamp <= startTimestamp) // tail in few days
+                        currentInterval += monthsInterval;
                 }
 
-                nextTSs.push(timestamp);
+                nextTSs.push( this._addMonths(new Date(timestamp), currentInterval).getTime() );
 
-                let interval: number = monthsInterval;
                 let i: number;
-                for (i=1; i<next; ++i, interval += monthsInterval) {
-                    nextTSs.push( this._addMonths(new Date(timestamp), interval).getTime() );
+                for (i=1; i<next; ++i) {
+                    currentInterval += monthsInterval;
+                    nextTSs.push( this._addMonths(new Date(timestamp), currentInterval).getTime() );
                 }
             }
 
