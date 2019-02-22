@@ -8,7 +8,7 @@ for an event.
 ## Install
 
 ```
-npm install event-time
+npm i event-time
 ```
 
 

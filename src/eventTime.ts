@@ -125,9 +125,9 @@ export class EventTime {
                 let currentInterval: number = 0;
 
                 if (timestamp <= startTimestamp) {
-                    let startTimestampDate = new Date(startTimestamp);
-                    let eventTimestampDate = new Date(timestamp);
-                    let currentMonthsDelta = (startTimestampDate.getFullYear() - eventTimestampDate.getFullYear()) * 12 -
+                    const startTimestampDate = new Date(startTimestamp);
+                    const eventTimestampDate = new Date(timestamp);
+                    const currentMonthsDelta = (startTimestampDate.getFullYear() - eventTimestampDate.getFullYear()) * 12 -
                         eventTimestampDate.getMonth() + startTimestampDate.getMonth();
 
                     currentInterval = Math.ceil(currentMonthsDelta / monthsInterval) * monthsInterval;

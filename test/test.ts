@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-// TODO chai-datetime
+// TODO chai-datetime?
 import { EventTime } from '../lib/eventTime';
 
 
@@ -872,9 +872,14 @@ describe('EventTime', () => {
 
 
 
-    it('dirty private _addMonths test', () => {
-        const eventTime: EventTime = new EventTime();
-        const dirtyPrivateMethod: any = eventTime['_addMonths'];
+    it('private _addMonths test', () => {
+        class EventTimeTest extends EventTime {
+            _addMonths(dateObj: Date, months: number): Date {
+                return super._addMonths(dateObj, months);
+            }
+        }
+
+        const eventTimeTest: EventTimeTest = new EventTimeTest();
 
 
         const date0 = new Date(2018, 0, 1);
@@ -898,19 +903,19 @@ describe('EventTime', () => {
 
         let results0: Date[] = [];
 
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 0) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 1) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 2) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 3) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 4) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 5) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 11) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 12) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 13) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 26) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 39) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 52) );
-        results0.push( dirtyPrivateMethod(new Date(date0Timestamp), 65) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 0) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 1) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 2) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 3) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 4) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 5) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 11) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 12) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 13) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 26) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 39) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 52) );
+        results0.push( eventTimeTest._addMonths(new Date(date0Timestamp), 65) );
 
 
         const date1 = new Date(2018, 0, 31);
@@ -931,16 +936,16 @@ describe('EventTime', () => {
 
         let results1: Date[] = [];
 
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 0) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 1) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 2) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 3) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 13) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 14) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 15) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 25) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 37) );
-        results1.push( dirtyPrivateMethod(new Date(date1Timestamp), 38) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 0) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 1) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 2) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 3) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 13) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 14) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 15) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 25) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 37) );
+        results1.push( eventTimeTest._addMonths(new Date(date1Timestamp), 38) );
 
 
         const date2 = new Date(2018, 3, 30);
@@ -961,16 +966,16 @@ describe('EventTime', () => {
 
         let results2: Date[] = [];
 
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 0) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 1) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 2) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 3) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 10) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 11) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 12) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 22) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 34) );
-        results2.push( dirtyPrivateMethod(new Date(date2Timestamp), 35) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 0) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 1) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 2) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 3) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 10) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 11) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 12) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 22) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 34) );
+        results2.push( eventTimeTest._addMonths(new Date(date2Timestamp), 35) );
 
 
         expect( results0.map(el => el.getTime()) ).eql( expectedDates0.map(el => el.getTime()) );
